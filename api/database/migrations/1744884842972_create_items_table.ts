@@ -11,11 +11,7 @@ export default class extends BaseSchema {
 
       table.string('color').notNullable().defaultTo('#000000')
 
-      table
-        .integer('floor_id')
-        .unsigned()
-        .references('id')
-        .inTable('floors')
+      table.integer('floor_id').unsigned().references('id').inTable('floors')
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

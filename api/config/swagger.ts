@@ -9,7 +9,7 @@ export default {
   info: {
     title: 'PickToLight REST API',
     version: '0.1.0',
-    description: ''
+    description: '',
   },
   snakeCase: true,
 
@@ -18,11 +18,11 @@ export default {
   preferredPutPatch: 'PUT', // if PUT/PATCH are provided for the same route, prefer PUT
   common: {
     parameters: {}, // OpenAPI conform parameters that are commonly used
-    headers: {} // OpenAPI conform headers that are commonly used
+    headers: {}, // OpenAPI conform headers that are commonly used
   },
   securitySchemes: {}, // optional
   authMiddlewares: ['auth', 'auth:api'], // optional
   defaultSecurityScheme: 'BearerAuth', // optional
   persistAuthorization: true, // persist authorization between reloads on the swagger page
-  showFullPath: false // the path displayed after endpoint summary
+  showFullPath: false, // the path displayed after endpoint summary
 }
