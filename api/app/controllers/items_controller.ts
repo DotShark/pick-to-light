@@ -43,7 +43,6 @@ export default class ItemsController {
    * @responseBody 404 - {}
    */
   async show({ params }: HttpContext) {
-    console.log(params)
     const item = await Item.findOrFail(params.id)
     return item
   }
@@ -72,7 +71,7 @@ export default class ItemsController {
       const message: ItemsWebsocketMessage = { action: 'reloadItems' }
       transmit.broadcast('items', message)
     }
-    if (colorChanged && item.slot && !itemHasBreakingChanges) {
+    if (colorChanged && item.slot !== null && !itemHasBreakingChanges) {
       const message: ItemsWebsocketMessage = {
         action: 'changeItemColor',
         params: { slot: item.slot, color: item.color },
