@@ -30,7 +30,7 @@ export default class ShelvesController {
    * @responseBody 404 - {}
    */
   async show({ params }: HttpContext) {
-    const shelf = await Shelf.findOrFail(params.id)
+    const shelf = await Shelf.query().where('id', params.id).preload('floors').firstOrFail()
     return shelf
   }
 

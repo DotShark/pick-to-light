@@ -1,13 +1,13 @@
 {
   "name": "api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
   "scripts": {
     "start": "node bin/server.js",
     "build": "node ace build",
-    "dev": "node ace serve --hmr",
+    "dev": "node ace serve",
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -55,6 +55,7 @@
     "@adonisjs/core": "^6.17.2",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.0",
+    "@adonisjs/transmit": "^2.0.2",
     "@vinejs/vine": "^3.0.0",
     "adonis-autoswagger": "^3.72.0",
     "better-sqlite3": "^11.9.1",

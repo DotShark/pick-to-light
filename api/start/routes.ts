@@ -13,6 +13,7 @@ const ShelvesController = () => import('#controllers/shelves_controller')
 import router from '@adonisjs/core/services/router'
 import AutoSwagger from 'adonis-autoswagger'
 import swagger from '#config/swagger'
+import transmit from '@adonisjs/transmit/services/main'
 
 router.get('/', async () => {
   return {
@@ -33,7 +34,7 @@ router
     router.get('/', [ShelvesController, 'index'])
     router.post('/', [ShelvesController, 'store'])
     router.get('/:id', [ShelvesController, 'show'])
-    router.put('/:id', [ShelvesController, 'update'])
+    router.patch('/:id', [ShelvesController, 'update'])
     router.delete('/:id', [ShelvesController, 'destroy'])
   })
   .prefix('/shelves')
@@ -43,7 +44,7 @@ router
     router.get('/', [FloorsController, 'index'])
     router.post('/', [FloorsController, 'store'])
     router.get('/:id', [FloorsController, 'show'])
-    router.put('/:id', [FloorsController, 'update'])
+    router.patch('/:id', [FloorsController, 'update'])
     router.delete('/:id', [FloorsController, 'destroy'])
   })
   .prefix('/floors')
@@ -53,7 +54,9 @@ router
     router.get('/', [ItemsController, 'index'])
     router.post('/', [ItemsController, 'store'])
     router.get('/:id', [ItemsController, 'show'])
-    router.put('/:id', [ItemsController, 'update'])
+    router.patch('/:id', [ItemsController, 'update'])
     router.delete('/:id', [ItemsController, 'destroy'])
   })
   .prefix('/items')
+
+transmit.registerRoutes()

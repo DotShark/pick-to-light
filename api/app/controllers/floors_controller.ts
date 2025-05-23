@@ -30,7 +30,7 @@ export default class FloorsController {
    * @responseBody 404 - {}
    */
   async show({ params }: HttpContext) {
-    const floor = await Floor.findByOrFail(params.id)
+    const floor = await Floor.query().where('id', params.id).preload('items').firstOrFail()
     return floor
   }
 
@@ -42,7 +42,7 @@ export default class FloorsController {
    * @responseBody 422 - {}
    */
   async update({ params, request }: HttpContext) {
-    const floor = await Floor.findByOrFail(params.id)
+    const floor = await Floor.findOrFail(params.id)
     const payload = await request.validateUsing(updateFloorValidator)
 
     floor.merge(payload)
@@ -57,7 +57,7 @@ export default class FloorsController {
    * @responseBody 404 - {}
    */
   async destroy({ params }: HttpContext) {
-    const floor = await Floor.findByOrFail(params.id)
+    const floor = await Floor.findOrFail(params.id)
     await floor.delete()
     return floor
   }
