@@ -1,4 +1,13 @@
 @import "tailwindcss";
 @import "tailwindcss/preflight.css" layer(base);
 
-@layer base;
+@theme {
+  --font-inter: "Inter", sans-serif;
+  
+  --color-blue: #4095BF;
+  --color-green: #40BF9D;
+  --color-gray: #D9D9D9;
+  --color-black: #000000;
+  --color-darkblue: #255065;
+  --color-white: #FFFFFF;
+}

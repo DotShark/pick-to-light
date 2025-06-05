@@ -15,7 +15,8 @@
       "@store/*": ["./src/store/*"],
       "@utils/*": ["./src/utils/*"],
       "@views/*": ["./src/views/*"],
-      "@icons/*": ["./src/components/icons/*"]
+      "@icons/*": ["./src/components/icons/*"],
+      "@images/*": ["./src/assets/*"]
     },
     "types": ["vite/client"]
   }
