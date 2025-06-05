@@ -1,2 +1,4 @@
-@import "tailwindcss";  
-@import './base.css';
+@import "tailwindcss";
+@import "tailwindcss/preflight.css" layer(base);
+
+@layer base;
