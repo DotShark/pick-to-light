@@ -1,27 +1,84 @@
-import requests
-import uuid
-import threading
-import time
+import _thread
 import json
+import os
+import time
 
-TRANSMIT_UID = str(uuid.uuid4())
-BASE_URL = "http://localhost:3333"
+import network
+from urequests import urequests
+
+SSID = "Unknown"
+PASSWORD = "something"
+
+
+def connect_to_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    if not wlan.isconnected():
+        print("🔌 Connecting to Wi-Fi...")
+        wlan.connect(SSID, PASSWORD)
+        timeout = 10
+        while not wlan.isconnected() and timeout > 0:
+            print("⌛ Waiting for connection...")
+            time.sleep(1)
+            timeout -= 1
+    if wlan.isconnected():
+        print("✅ Connected!")
+        print("📡 IP Address:", wlan.ifconfig()[0])
+    else:
+        print("❌ Failed to connect.")
+
+
+connect_to_wifi()
+
+
+def get_random_bytes(n):
+    try:
+        return os.urandom(n)
+    except ImportError:
+        # Fallback if urandom is not available
+        import random
+        return bytes([random.getrandbits(8) for _ in range(n)])
+
+
+def uuid4():
+    # Generate 16 random bytes
+    random_bytes = bytearray(get_random_bytes(16))
+
+    # Set version to 4 (random UUID)
+    random_bytes[6] = (random_bytes[6] & 0x0F) | 0x40
+    # Set variant to 10xx
+    random_bytes[8] = (random_bytes[8] & 0x3F) | 0x80
+
+    hex_str = ''.join('{:02x}'.format(b) for b in random_bytes)
+    return (
+        f"{hex_str[0:8]}-"
+        f"{hex_str[8:12]}-"
+        f"{hex_str[12:16]}-"
+        f"{hex_str[16:20]}-"
+        f"{hex_str[20:]}"
+    )
+
+
+TRANSMIT_UID = str(uuid4())
+BASE_URL = "http://127.0.0.1:3333"
 CHANNEL = "items"
 
+
 def subscribe_to_channel():
-    response = requests.post(f"{BASE_URL}/__transmit/subscribe", json={
+    response = urequests.post(f"{BASE_URL}/__transmit/subscribe", json={
         "uid": TRANSMIT_UID,
         "channel": CHANNEL
     })
     response.raise_for_status()
     print("✅ Subscribed to channel 'items'")
 
+
 def listen_to_events():
     url = f"{BASE_URL}/__transmit/events?uid={TRANSMIT_UID}"
     print("👂 Listening to Transmit events...")
-    response = requests.get(url, stream=True)
+    response = urequests.get(url, stream=True)
     response.raise_for_status()
-    
+
     buffer = ""
     for chunk in response.iter_content(decode_unicode=True):
         if chunk:
@@ -36,6 +93,7 @@ def listen_to_events():
                     except json.JSONDecodeError:
                         print(f"Failed to parse event data: {data}")
 
+
 def handle_event(data):
     print("📦 Event received:")
     print(f"- channel: {data['channel']}")
@@ -43,24 +101,25 @@ def handle_event(data):
     print(f"- params: {data['payload']['params']}")
     # TODO: update LEDs accordingly
 
+
 def fetch_items_from_floor(floor_id: int):
-    response = requests.get(f"{BASE_URL}/floors/{floor_id}")
+    response = urequests.get(f"{BASE_URL}/floors/{floor_id}")
     response.raise_for_status()
     floor_data = response.json()
     print(f"🏗 Floor: {floor_data['name']}")
     for item in floor_data["items"]:
         update_led(item["slot"], item["color"])
 
+
 def update_led(slot: int, color: str):
     # TODO: Replace with your actual Raspberry Pi Pico LED control
     print(f"💡 Set LED at slot {slot} to color {color}")
 
+
 if __name__ == "__main__":
-    # I had to write this weird code because AdonisJS Transmit want us to listen to events before subscribing to any channel
+    # I had to write this weird code because AdonisJS Transmit want us to listen to events before subscribing to any
+    # channel
     fetch_items_from_floor(1)
-    events_thread = threading.Thread(target=listen_to_events)
-    events_thread.daemon = True
-    events_thread.start()
+    events_thread = _thread.start_new_thread(listen_to_events, ())
     time.sleep(0.5)
     subscribe_to_channel()
-    events_thread.join()
