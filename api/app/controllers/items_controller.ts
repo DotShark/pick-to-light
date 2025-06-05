@@ -32,7 +32,7 @@ export default class ItemsController {
     const item = await Item.create(payload)
 
     const message: ItemsWebsocketMessage = { action: 'reloadItems' }
-    transmit.broadcast('items', message)
+    transmit.broadcast(`floors/${item.floorId}`, message)
 
     return item
   }
@@ -59,8 +59,10 @@ export default class ItemsController {
     const payload = await request.validateUsing(updateItemValidator)
 
     let itemHasBreakingChanges = false
-    if (payload.slot && payload.slot !== item.slot) itemHasBreakingChanges = true
-    if (payload.floorId && payload.floorId !== item.floorId) itemHasBreakingChanges = true
+    if ((payload.slot || payload.slot === 0) && payload.slot !== item.slot)
+      itemHasBreakingChanges = true
+    if ((payload.floorId || payload.floorId === 0) && payload.floorId !== item.floorId)
+      itemHasBreakingChanges = true
 
     const colorChanged = payload.color && payload.color !== item.color
 
@@ -69,14 +71,14 @@ export default class ItemsController {
 
     if (itemHasBreakingChanges) {
       const message: ItemsWebsocketMessage = { action: 'reloadItems' }
-      transmit.broadcast('items', message)
+      transmit.broadcast(`floors/${item.floorId}`, message)
     }
     if (colorChanged && item.slot !== null && !itemHasBreakingChanges) {
       const message: ItemsWebsocketMessage = {
         action: 'changeItemColor',
         params: { slot: item.slot, color: item.color },
       }
-      transmit.broadcast('items', message)
+      transmit.broadcast(`floors/${item.floorId}`, message)
     }
 
     return item
@@ -92,7 +94,7 @@ export default class ItemsController {
     await item.delete()
 
     const message: ItemsWebsocketMessage = { action: 'reloadItems' }
-    transmit.broadcast('items', message)
+    transmit.broadcast(`floors/${item.floorId}`, message)
 
     return item
   }

@@ -60,8 +60,8 @@ def uuid4():
 
 
 TRANSMIT_UID = str(uuid4())
-BASE_URL = "http://127.0.0.1:3333"
-CHANNEL = "items"
+BASE_URL = "http://localhost:3333"
+CHANNEL = "floors/1"
 
 
 def subscribe_to_channel():
@@ -70,7 +70,7 @@ def subscribe_to_channel():
         "channel": CHANNEL
     })
     response.raise_for_status()
-    print("✅ Subscribed to channel 'items'")
+    print(f"✅ Subscribed to channel '{CHANNEL}'")
 
 
 def listen_to_events():
@@ -96,9 +96,9 @@ def listen_to_events():
 
 def handle_event(data):
     print("📦 Event received:")
-    print(f"- channel: {data['channel']}")
-    print(f"- action: {data['payload']['action']}")
-    print(f"- params: {data['payload']['params']}")
+    print(f"- channel: {data.get('channel', 'Unknown')}")
+    print(f"- action: {data.get('payload', {}).get('action', 'Unknown')}")
+    print(f"- params: {data.get('payload', {}).get('params', {})}")
     # TODO: update LEDs accordingly
 
 
