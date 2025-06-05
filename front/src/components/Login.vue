@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="h-dvh">
+  <div class="h-dvh pt-16">
     
   </div>
 </template>
