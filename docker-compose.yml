@@ -1,0 +1,36 @@
+services:
+  api:
+    build: ./api
+    container_name: pick-to-light-api
+    ports:
+      - "${API_PORT}:3333"
+    volumes:
+      - ./api/tmp:/app/tmp
+    environment:
+      NODE_ENV: production
+      TZ: ${TZ}
+      PORT: ${API_PORT}
+      HOST: ${API_HOST}
+      LOG_LEVEL: ${LOG_LEVEL}
+      APP_KEY: ${APP_KEY}
+      MQTT_URL: ${MQTT_URL}
+    networks:
+      - pick-to-light
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: pick-to-light-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - pick-to-light
+    restart: unless-stopped
+
+networks:
+  pick-to-light:
+    driver: bridge

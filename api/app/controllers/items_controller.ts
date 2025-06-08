@@ -1,15 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Item from '#models/item'
 import { createItemValidator, updateItemValidator } from '#validators/item'
-import transmit from '@adonisjs/transmit/services/main'
-
-type ItemsWebsocketMessage = {
-  action: 'reloadItems' | 'changeItemColor'
-  params?: {
-    slot: number
-    color: string
-  }
-}
+import { ItemsMqttMessage, mqttService } from '#services/mqtt_service'
 
 export default class ItemsController {
   /**
@@ -31,8 +23,8 @@ export default class ItemsController {
     const payload = await request.validateUsing(createItemValidator)
     const item = await Item.create(payload)
 
-    const message: ItemsWebsocketMessage = { action: 'reloadItems' }
-    transmit.broadcast(`floors/${item.floorId}`, message)
+    const message: ItemsMqttMessage = { action: 'reloadItems' }
+    await mqttService.publishToFloor(item.floorId, message)
 
     return item
   }
@@ -70,15 +62,15 @@ export default class ItemsController {
     await item.save()
 
     if (itemHasBreakingChanges) {
-      const message: ItemsWebsocketMessage = { action: 'reloadItems' }
-      transmit.broadcast(`floors/${item.floorId}`, message)
+      const message: ItemsMqttMessage = { action: 'reloadItems' }
+      await mqttService.publishToFloor(item.floorId, message)
     }
     if (colorChanged && item.slot !== null && !itemHasBreakingChanges) {
-      const message: ItemsWebsocketMessage = {
+      const message: ItemsMqttMessage = {
         action: 'changeItemColor',
         params: { slot: item.slot, color: item.color },
       }
-      transmit.broadcast(`floors/${item.floorId}`, message)
+      await mqttService.publishToFloor(item.floorId, message)
     }
 
     return item
@@ -93,8 +85,8 @@ export default class ItemsController {
     const item = await Item.findOrFail(params.id)
     await item.delete()
 
-    const message: ItemsWebsocketMessage = { action: 'reloadItems' }
-    transmit.broadcast(`floors/${item.floorId}`, message)
+    const message: ItemsMqttMessage = { action: 'reloadItems' }
+    await mqttService.publishToFloor(item.floorId, message)
 
     return item
   }

@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
@@ -55,11 +55,11 @@
     "@adonisjs/core": "^6.17.2",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.0",
-    "@adonisjs/transmit": "^2.0.2",
     "@vinejs/vine": "^3.0.0",
     "adonis-autoswagger": "^3.72.0",
-    "better-sqlite3": "^11.9.1",
+    "better-sqlite3": "^11.10.0",
     "luxon": "^3.6.1",
+    "mqtt": "^5.13.1",
     "reflect-metadata": "^0.2.2"
   },
   "hotHook": {

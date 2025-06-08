@@ -13,7 +13,6 @@ const ShelvesController = () => import('#controllers/shelves_controller')
 import router from '@adonisjs/core/services/router'
 import AutoSwagger from 'adonis-autoswagger'
 import swagger from '#config/swagger'
-import transmit from '@adonisjs/transmit/services/main'
 
 router.get('/', async () => {
   return {
@@ -58,5 +57,3 @@ router
     router.delete('/:id', [ItemsController, 'destroy'])
   })
   .prefix('/items')
-
-transmit.registerRoutes()
