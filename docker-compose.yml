@@ -3,13 +3,13 @@ services:
     build: ./api
     container_name: pick-to-light-api
     ports:
-      - "${API_PORT}:3333"
+      - "${API_PORT}:4000"
     volumes:
       - ./api/tmp:/app/tmp
     environment:
       NODE_ENV: production
       TZ: ${TZ}
-      PORT: ${API_PORT}
+      PORT: 4000
       HOST: ${API_HOST}
       LOG_LEVEL: ${LOG_LEVEL}
       APP_KEY: ${APP_KEY}

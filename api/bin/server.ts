@@ -32,6 +32,7 @@ const IMPORTER = (filePath: string) => {
 
 new Ignitor(APP_ROOT, { importer: IMPORTER })
   .tap((app) => {
+    mqttService.connect()
     app.booting(async () => {
       await import('#start/env')
     })
@@ -44,5 +45,3 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
     process.exitCode = 1
     prettyPrintError(error)
   })
-
-mqttService.connect()
