@@ -14,14 +14,16 @@
       </div>
       <div class="form-group">
         <label for="item-color">Color:</label>
-        <input
-          id="item-color"
-          v-model="itemData.color"
-          type="color"
-          required
-          placeholder="Enter item color"
-        />
-        <small class="input-help">Select a color from the color picker</small>
+        <div class="color-picker-wrapper">
+          <input
+            id="item-color"
+            v-model="itemData.color"
+            type="color"
+            class="color-picker"
+            required
+          />
+          <span class="color-value">{{ itemData.color }}</span>
+        </div>
       </div>
       <div class="form-group">
         <label for="floor-select">Floor:</label>
@@ -73,7 +75,7 @@ const props = defineProps({
 
 const itemData = reactive({
   name: '',
-  color: '#000000', // Default to black
+  color: '#FF5733', // Default color
   floor_id: ''
 })
 
@@ -115,7 +117,7 @@ const createItem = async () => {
       message.value = 'Item created successfully!'
       isSuccess.value = true
       itemData.name = '' // Reset form
-      itemData.color = '#000000' // Reset to default color
+      itemData.color = '#FF5733' // Reset to default color
       itemData.floor_id = ''
       
       // Emit event to notify parent component
@@ -198,6 +200,59 @@ select {
   color: #666;
   margin-top: 2px;
   font-style: italic;
+}
+
+.color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-picker {
+  width: 50px;
+  height: 40px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  transition: border-color 0.2s ease;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.color-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.color-picker:hover {
+  border-color: #999;
+}
+
+.color-picker:focus {
+  outline: none;
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+}
+
+.color-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  color: #666;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
 }
 
 .submit-btn {
