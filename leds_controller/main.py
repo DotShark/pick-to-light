@@ -1,110 +1,83 @@
-import _thread
 import json
-import os
+import requests
 import time
-
-import network
-from urequests import urequests
-
-SSID = "Unknown"
-PASSWORD = "something"
+from umqtt.simple import MQTTClient
+from lib.http_utils import check_response_status
 
 
-def connect_to_wifi():
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    if not wlan.isconnected():
-        print("🔌 Connecting to Wi-Fi...")
-        wlan.connect(SSID, PASSWORD)
-        timeout = 10
-        while not wlan.isconnected() and timeout > 0:
-            print("⌛ Waiting for connection...")
-            time.sleep(1)
-            timeout -= 1
-    if wlan.isconnected():
-        print("✅ Connected!")
-        print("📡 IP Address:", wlan.ifconfig()[0])
-    else:
-        print("❌ Failed to connect.")
+BASE_URL = "http://localhost:4000"
+FLOOR_ID = 1
+MQTT_BROKER = "localhost"  # Update this to your MQTT broker address
+MQTT_PORT = 1883
+CLIENT_ID = f"led_controller_floor_{FLOOR_ID}"
+TOPIC = f"floors/{FLOOR_ID}"
 
 
-connect_to_wifi()
-
-
-def get_random_bytes(n):
+def mqtt_callback(topic, msg):
+    """Handle incoming MQTT messages"""
     try:
-        return os.urandom(n)
-    except ImportError:
-        # Fallback if urandom is not available
-        import random
-        return bytes([random.getrandbits(8) for _ in range(n)])
+        topic_str = topic.decode('utf-8')
+        message_str = msg.decode('utf-8')
+        message_data = json.loads(message_str)
+        
+        print(f"📦 MQTT message received on topic: {topic_str}")
+        print(f"- action: {message_data.get('action', 'Unknown')}")
+        print(f"- params: {message_data.get('params', {})}")
+        
+        handle_mqtt_message(message_data)
+        
+    except Exception as e:
+        print(f"❌ Error processing MQTT message: {e}")
 
 
-def uuid4():
-    # Generate 16 random bytes
-    random_bytes = bytearray(get_random_bytes(16))
-
-    # Set version to 4 (random UUID)
-    random_bytes[6] = (random_bytes[6] & 0x0F) | 0x40
-    # Set variant to 10xx
-    random_bytes[8] = (random_bytes[8] & 0x3F) | 0x80
-
-    hex_str = ''.join('{:02x}'.format(b) for b in random_bytes)
-    return (
-        f"{hex_str[0:8]}-"
-        f"{hex_str[8:12]}-"
-        f"{hex_str[12:16]}-"
-        f"{hex_str[16:20]}-"
-        f"{hex_str[20:]}"
-    )
-
-
-TRANSMIT_UID = str(uuid4())
-BASE_URL = "http://localhost:3333"
-CHANNEL = "floors/1"
+def handle_mqtt_message(data):
+    """Handle MQTT message based on action"""
+    action = data.get('action')
+    params = data.get('params', {})
+    
+    if action == 'reloadItems':
+        print("🔄 Reloading all items from floor...")
+        fetch_items_from_floor(FLOOR_ID)
+    elif action == 'changeItemColor':
+        slot = params.get('slot')
+        color = params.get('color')
+        if slot is not None and color:
+            update_led(slot, color)
+        else:
+            print("⚠️ Missing slot or color in changeItemColor message")
+    else:
+        print(f"⚠️ Unknown action: {action}")
 
 
-def subscribe_to_channel():
-    response = urequests.post(f"{BASE_URL}/__transmit/subscribe", json={
-        "uid": TRANSMIT_UID,
-        "channel": CHANNEL
-    })
-    response.raise_for_status()
-    print(f"✅ Subscribed to channel '{CHANNEL}'")
+def connect_mqtt():
+    """Connect to MQTT broker and subscribe to floor topic"""
+    try:
+        client = MQTTClient(CLIENT_ID, MQTT_BROKER, port=MQTT_PORT)
+        client.set_callback(mqtt_callback)
+        client.connect()
+        client.subscribe(TOPIC.encode('utf-8'))
+        print(f"🔗 Connected to MQTT broker and subscribed to: {TOPIC}")
+        return client
+    except Exception as e:
+        print(f"❌ Failed to connect to MQTT broker: {e}")
+        return None
 
 
-def listen_to_events():
-    url = f"{BASE_URL}/__transmit/events?uid={TRANSMIT_UID}"
-    print("👂 Listening to Transmit events...")
-    response = urequests.get(url, stream=True)
-    response.raise_for_status()
-
-    buffer = ""
-    for chunk in response.iter_content(decode_unicode=True):
-        if chunk:
-            buffer += chunk
-            while "\n\n" in buffer:
-                message, buffer = buffer.split("\n\n", 1)
-                if message.startswith("data: "):
-                    data = message[6:]
-                    try:
-                        event_data = json.loads(data)
-                        handle_event(event_data)
-                    except json.JSONDecodeError:
-                        print(f"Failed to parse event data: {data}")
-
-
-def handle_event(data):
-    print("📦 Event received:")
-    print(f"- channel: {data.get('channel', 'Unknown')}")
-    print(f"- action: {data.get('payload', {}).get('action', 'Unknown')}")
-    print(f"- params: {data.get('payload', {}).get('params', {})}")
-    # TODO: update LEDs accordingly
+def listen_to_mqtt(client):
+    """Listen to MQTT messages"""
+    print("👂 Listening to MQTT messages...")
+    try:
+        while True:
+            client.check_msg()
+            time.sleep(0.1)  # Small delay to prevent busy waiting
+    except Exception as e:
+        print(f"❌ MQTT listening error: {e}")
+        client.disconnect()
 
 
 def fetch_items_from_floor(floor_id: int):
-    response = urequests.get(f"{BASE_URL}/floors/{floor_id}")
-    response.raise_for_status()
+    response = requests.get(f"{BASE_URL}/floors/{floor_id}")
+    check_response_status(response)
     floor_data = response.json()
     print(f"🏗 Floor: {floor_data['name']}")
     for item in floor_data["items"]:
@@ -117,9 +90,12 @@ def update_led(slot: int, color: str):
 
 
 if __name__ == "__main__":
-    # I had to write this weird code because AdonisJS Transmit want us to listen to events before subscribing to any
-    # channel
-    fetch_items_from_floor(1)
-    events_thread = _thread.start_new_thread(listen_to_events, ())
-    time.sleep(0.5)
-    subscribe_to_channel()
+    # Initial load of items from the floor
+    fetch_items_from_floor(FLOOR_ID)
+    
+    # Connect to MQTT and start listening
+    mqtt_client = connect_mqtt()
+    if mqtt_client:
+        listen_to_mqtt(mqtt_client)
+    else:
+        print("❌ Failed to start MQTT client")
