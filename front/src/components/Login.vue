@@ -16,7 +16,9 @@
       <label for="password">Password</label>
       <input class="bg-gray rounded-lg p-3 w-full focus:outline-none" type="password" id="password" />
 
-      <button class="bg-blue text-white rounded-lg p-3 w-full cursor-pointer" type="submit">Login</button>
+      <router-link to="/">
+        <p class="bg-blue text-white text-center rounded-lg p-3 w-full cursor-pointer">Login</p>
+      </router-link>
     </div>
     
   </form>

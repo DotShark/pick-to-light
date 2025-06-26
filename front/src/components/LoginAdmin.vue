@@ -16,12 +16,14 @@
       <label for="password">Password</label>
       <input class="bg-gray rounded-lg p-3 w-full focus:outline-none" type="password" id="password" />
 
-      <button class="bg-green text-white rounded-lg p-3 w-full cursor-pointer" type="submit">Login</button>
+      <router-link to="/">
+        <p class="bg-green text-white rounded-lg p-3 w-full cursor-pointer text-center">Login</p>
+      </router-link>
     </div>
     
   </form>
   <div class="flex flex-col items-end w-full max-w-md">
-      <router-link to="/">
+      <router-link to="/login">
         <img src="@images/back.svg" alt="Retour" />
       </router-link>
   </div>
