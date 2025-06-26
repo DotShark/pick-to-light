@@ -17,22 +17,32 @@
         <input
           id="item-color"
           v-model="itemData.color"
-          type="text"
+          type="color"
           required
           placeholder="Enter item color"
         />
+        <small class="input-help">Select a color from the color picker</small>
       </div>
       <div class="form-group">
-        <label for="floor-id">Floor ID:</label>
-        <input
-          id="floor-id"
-          v-model.number="itemData.floor_id"
-          type="number"
+        <label for="floor-select">Floor:</label>
+        <select
+          id="floor-select"
+          v-model="itemData.floor_id"
           required
-          placeholder="Enter floor ID"
-        />
+        >
+          <option value="" disabled>Select a floor</option>
+          <option 
+            v-for="floor in props.floors" 
+            :key="floor.id" 
+            :value="floor.id"
+          >
+            {{ floor.name }} (ID: {{ floor.id }})
+          </option>
+        </select>
+        <div v-if="props.floorsLoading" class="loading-text">Loading floors...</div>
+        <div v-if="props.floorsError" class="error-text">{{ props.floorsError }}</div>
       </div>
-      <button type="submit" :disabled="loading" class="submit-btn">
+      <button type="submit" :disabled="loading || props.floorsLoading" class="submit-btn">
         {{ loading ? 'Creating...' : 'Create Item' }}
       </button>
     </form>
@@ -43,9 +53,27 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 
+const emit = defineEmits(['item-created'])
+
+// Receive floors data from parent
+const props = defineProps({
+  floors: {
+    type: Array,
+    default: () => []
+  },
+  floorsLoading: {
+    type: Boolean,
+    default: false
+  },
+  floorsError: {
+    type: String,
+    default: ''
+  }
+})
+
 const itemData = reactive({
   name: '',
-  color: '',
+  color: '#000000', // Default to black
   floor_id: ''
 })
 
@@ -65,27 +93,37 @@ const createItem = async () => {
   loading.value = true
   message.value = ''
 
+  // Ensure floorId is a number
+  const payload = {
+    name: itemData.name,
+    color: itemData.color,
+    floorId: Number(itemData.floor_id)
+  }
+
+  console.log('Sending payload:', payload)
+
   try {
     const response = await fetch('http://localhost:3333/items', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name: itemData.name,
-        color: itemData.color,
-        floorId: itemData.floor_id
-      })
+      body: JSON.stringify(payload)
     })
 
     if (response.ok) {
       message.value = 'Item created successfully!'
       isSuccess.value = true
       itemData.name = '' // Reset form
-      itemData.color = ''
+      itemData.color = '#000000' // Reset to default color
       itemData.floor_id = ''
+      
+      // Emit event to notify parent component
+      emit('item-created')
     } else {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      const errorData = await response.text()
+      console.error('Server response:', errorData)
+      throw new Error(`HTTP error! status: ${response.status} - ${errorData}`)
     }
   } catch (error) {
     message.value = `Error creating item: ${error.message}`
@@ -126,17 +164,40 @@ label {
   color: #555;
 }
 
-input {
+input, select {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  background: white;
 }
 
-input:focus {
+input:focus, select:focus {
   outline: none;
   border-color: #e74c3c;
   box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+}
+
+select {
+  cursor: pointer;
+}
+
+.loading-text {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #e74c3c;
+}
+
+.input-help {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+  font-style: italic;
 }
 
 .submit-btn {

@@ -23,6 +23,8 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 
+const emit = defineEmits(['shelve-created'])
+
 const shelveData = reactive({
   name: ''
 })
@@ -58,6 +60,9 @@ const createShelve = async () => {
       message.value = 'Shelve created successfully!'
       isSuccess.value = true
       shelveData.name = '' // Reset form
+      
+      // Emit event to notify parent component
+      emit('shelve-created')
     } else {
       throw new Error(`HTTP error! status: ${response.status}`)
     }

@@ -13,16 +13,25 @@
         />
       </div>
       <div class="form-group">
-        <label for="shelf-id">Shelf ID:</label>
-        <input
-          id="shelf-id"
-          v-model.number="floorData.shelf_id"
-          type="number"
+        <label for="shelf-select">Shelf:</label>
+        <select
+          id="shelf-select"
+          v-model="floorData.shelf_id"
           required
-          placeholder="Enter shelf ID"
-        />
+        >
+          <option value="" disabled>Select a shelf</option>
+          <option 
+            v-for="shelf in props.shelves" 
+            :key="shelf.id" 
+            :value="shelf.id"
+          >
+            {{ shelf.name }} (ID: {{ shelf.id }})
+          </option>
+        </select>
+        <div v-if="props.shelvesLoading" class="loading-text">Loading shelves...</div>
+        <div v-if="props.shelvesError" class="error-text">{{ props.shelvesError }}</div>
       </div>
-      <button type="submit" :disabled="loading" class="submit-btn">
+      <button type="submit" :disabled="loading || props.shelvesLoading" class="submit-btn">
         {{ loading ? 'Creating...' : 'Create Floor' }}
       </button>
     </form>
@@ -32,6 +41,24 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+
+const emit = defineEmits(['floor-created'])
+
+// Receive shelves data from parent
+const props = defineProps({
+  shelves: {
+    type: Array,
+    default: () => []
+  },
+  shelvesLoading: {
+    type: Boolean,
+    default: false
+  },
+  shelvesError: {
+    type: String,
+    default: ''
+  }
+})
 
 const floorData = reactive({
   name: '',
@@ -54,16 +81,21 @@ const createFloor = async () => {
   loading.value = true
   message.value = ''
 
+  // Ensure shelfId is a number
+  const payload = {
+    name: floorData.name,
+    shelfId: Number(floorData.shelf_id)
+  }
+
+  console.log('Sending payload:', payload)
+
   try {
     const response = await fetch('http://localhost:3333/floors/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name: floorData.name,
-        shelfId: floorData.shelf_id
-      })
+      body: JSON.stringify(payload)
     })
 
     if (response.ok) {
@@ -71,8 +103,13 @@ const createFloor = async () => {
       isSuccess.value = true
       floorData.name = '' // Reset form
       floorData.shelf_id = ''
+      
+      // Emit event to notify parent component
+      emit('floor-created')
     } else {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      const errorData = await response.text()
+      console.error('Server response:', errorData)
+      throw new Error(`HTTP error! status: ${response.status} - ${errorData}`)
     }
   } catch (error) {
     message.value = `Error creating floor: ${error.message}`
@@ -113,17 +150,33 @@ label {
   color: #555;
 }
 
-input {
+input, select {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  background: white;
 }
 
-input:focus {
+input:focus, select:focus {
   outline: none;
   border-color: #27ae60;
   box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
+}
+
+select {
+  cursor: pointer;
+}
+
+.loading-text {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #e74c3c;
 }
 
 .submit-btn {
