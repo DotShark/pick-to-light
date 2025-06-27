@@ -11,6 +11,7 @@
 
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
+import { mqttService } from '#services/mqtt_service'
 
 /**
  * URL to the application root. AdonisJS need it to resolve
@@ -31,6 +32,7 @@ const IMPORTER = (filePath: string) => {
 
 new Ignitor(APP_ROOT, { importer: IMPORTER })
   .tap((app) => {
+    mqttService.connect()
     app.booting(async () => {
       await import('#start/env')
     })

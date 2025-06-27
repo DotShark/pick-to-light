@@ -105,7 +105,7 @@ const createItem = async () => {
   console.log('Sending payload:', payload)
 
   try {
-    const response = await fetch('http://localhost:3333/items', {
+    const response = await fetch('http://localhost:4000/items', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

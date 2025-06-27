@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import TheWelcome from '@components/TheWelcome.vue'
 
 const router = useRouter()
 
@@ -11,7 +10,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <div class="about">
+    <h1>This is the home page</h1>
+  </div>
 </template>

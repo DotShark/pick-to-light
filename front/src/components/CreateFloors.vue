@@ -90,7 +90,7 @@ const createFloor = async () => {
   console.log('Sending payload:', payload)
 
   try {
-    const response = await fetch('http://localhost:3333/floors/', {
+    const response = await fetch('http://localhost:4000/floors/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -8,6 +8,7 @@ export const createItemValidator = vine.compile(
       .regex(/^#[0-9A-Fa-f]{6}$/)
       .optional(),
     floorId: vine.number().positive(),
+    slot: vine.number().positive().optional(),
   })
 )
 
@@ -19,5 +20,6 @@ export const updateItemValidator = vine.compile(
       .regex(/^#[0-9A-Fa-f]{6}$/)
       .optional(),
     floorId: vine.number().positive().optional(),
+    slot: vine.number().positive().optional(),
   })
 )

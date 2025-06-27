@@ -1,0 +1,5 @@
+# Exclude all contents of Mosquitto data and log directories, but keep the folders
+data/*
+!data/.gitkeep
+log/*
+!log/.gitkeep

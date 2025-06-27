@@ -14,6 +14,9 @@ export default class Item extends BaseModel {
   declare color: string
 
   @column()
+  declare slot: number | null
+
+  @column()
   declare floorId: number
 
   @belongsTo(() => Floor)

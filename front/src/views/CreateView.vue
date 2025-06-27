@@ -40,7 +40,7 @@ const fetchShelves = async () => {
   shelvesError.value = ''
   
   try {
-    const response = await fetch('http://localhost:3333/shelves')
+    const response = await fetch('http://localhost:4000/shelves')
     if (response.ok) {
       shelves.value = await response.json()
     } else {
@@ -59,7 +59,7 @@ const fetchFloors = async () => {
   floorsError.value = ''
   
   try {
-    const response = await fetch('http://localhost:3333/floors')
+    const response = await fetch('http://localhost:4000/floors')
     if (response.ok) {
       floors.value = await response.json()
     } else {

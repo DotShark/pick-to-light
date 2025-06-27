@@ -8,7 +8,7 @@ export default {
   productionEnv: 'production', // optional
   info: {
     title: 'PickToLight REST API',
-    version: '0.1.0',
+    version: '0.2.0',
     description: '',
   },
   snakeCase: true,

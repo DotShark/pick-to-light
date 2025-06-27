@@ -46,7 +46,7 @@ const createShelve = async () => {
   message.value = ''
 
   try {
-    const response = await fetch('http://localhost:3333/shelves', {
+    const response = await fetch('http://localhost:4000/shelves', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
