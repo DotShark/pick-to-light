@@ -497,23 +497,18 @@ const confirmCreate = async () => {
 
     if (response.ok) {
       const createdItem = await response.json()
-      console.log('Created item:', createdItem)
-      console.log('Create type:', createType.value)
       
       // Refresh appropriate data and navigate
       if (createType.value === 'shelve') {
         await fetchShelves()
-        console.log('Navigating to shelve:', createdItem.id)
         // Navigate to the newly created shelve
         router.push({ name: 'manageShelve', params: { shelveId: createdItem.id.toString() } })
       } else if (createType.value === 'floor') {
         await fetchFloors(selectedShelve.value.id)
-        console.log('Navigating to floor:', createdItem.id)
         // Navigate to the newly created floor
         router.push({ name: 'manageFloor', params: { shelveId: selectedShelve.value.id.toString(), floorId: createdItem.id.toString() } })
       } else {
         await fetchItems(selectedFloor.value.id)
-        console.log('Item created:', createdItem.id)
         // For items, set the selectedItemId to the newly created item
         selectedItemId.value = createdItem.id.toString()
       }
