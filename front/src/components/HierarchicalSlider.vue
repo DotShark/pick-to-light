@@ -1,205 +1,205 @@
 <template>
-  <div class="hierarchical-slider">
+  <div class="bg-white rounded-lg overflow-hidden shadow-lg">
     <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb">
+    <div class="flex items-center px-5 py-4 bg-gray-100 border-b border-gray-200">
       <button 
         @click="resetToShelves" 
-        :class="{ active: currentLevel === 'shelves' }"
-        class="breadcrumb-item"
+        :class="{ 'bg-blue-500 text-white': currentLevel === 'shelves' }"
+        class="bg-transparent border-none text-gray-500 cursor-pointer text-sm px-2 py-1 rounded transition-all duration-300 hover:bg-gray-200 hover:text-gray-700"
       >
         Shelves
       </button>
-      <span v-if="selectedShelve" class="breadcrumb-separator">›</span>
+      <span v-if="selectedShelve" class="mx-2 text-gray-500">›</span>
       <button 
         v-if="selectedShelve"
         @click="goToFloors" 
-        :class="{ active: currentLevel === 'floors' }"
-        class="breadcrumb-item"
+        :class="{ 'bg-blue-500 text-white': currentLevel === 'floors' }"
+        class="bg-transparent border-none text-gray-500 cursor-pointer text-sm px-2 py-1 rounded transition-all duration-300 hover:bg-gray-200 hover:text-gray-700"
       >
         {{ selectedShelve.name }} - Floors
       </button>
-      <span v-if="selectedFloor" class="breadcrumb-separator">›</span>
+      <span v-if="selectedFloor" class="mx-2 text-gray-500">›</span>
       <button 
         v-if="selectedFloor"
         @click="goToItems" 
-        :class="{ active: currentLevel === 'items' }"
-        class="breadcrumb-item"
+        :class="{ 'bg-blue-500 text-white': currentLevel === 'items' }"
+        class="bg-transparent border-none text-gray-500 cursor-pointer text-sm px-2 py-1 rounded transition-all duration-300 hover:bg-gray-200 hover:text-gray-700"
       >
         {{ selectedFloor.name }} - Items
       </button>
     </div>
 
     <!-- Shelves Level -->
-    <div class="level-container">
-      <h3>{{ selectedShelve ? `Selected Shelve: ${selectedShelve.name}` : 'Select a Shelve' }}</h3>
-      <div class="slider-container">
-        <div class="slider-wrapper">
-          <div class="slider-content" :style="{ transform: `translateX(-${shelveSliderOffset}px)` }">
+    <div class="p-5">
+      <h3 class="m-0 mb-5 text-gray-700">{{ selectedShelve ? `Selected Shelve: ${selectedShelve.name}` : 'Select a Shelve' }}</h3>
+      <div class="relative">
+        <div class="relative overflow-hidden w-full h-50">
+          <div class="flex flex-row transition-transform duration-300 ease-in-out gap-5" :style="{ transform: `translateX(-${shelveSliderOffset}px)` }">
             <div 
               v-for="shelve in shelves" 
               :key="shelve.id"
-              class="slider-item shelve-item"
-              :class="{ selected: selectedShelve && selectedShelve.id === shelve.id }"
+              class="min-h-32 min-w-64 bg-gray-50 rounded-lg p-5 cursor-pointer transition-all duration-300 border-2 border-transparent flex-shrink-0 border-l-4 border-l-blue-500 hover:transform hover:-translate-y-1 hover:shadow-lg"
+              :class="{ 'border-2 border-blue-500 bg-blue-50': selectedShelve && selectedShelve.id === shelve.id }"
               @click="selectShelve(shelve)"
             >
-              <div class="item-content">
-                <h4>{{ shelve.name }}</h4>
-                <p class="item-meta">ID: {{ shelve.id }}</p>
-                <p class="item-meta">Created: {{ formatDate(shelve.createdAt) }}</p>
-                <div class="item-actions">
-                  <button @click.stop="editShelve(shelve)" class="edit-btn">Edit</button>
-                  <button @click.stop="deleteShelve(shelve)" class="delete-btn">Delete</button>
+              <div>
+                <h4 class="m-0 mb-2 text-gray-700">{{ shelve.name }}</h4>
+                <p class="text-xs text-gray-500 my-1">ID: {{ shelve.id }}</p>
+                <p class="text-xs text-gray-500 my-1">Created: {{ formatDate(shelve.createdAt) }}</p>
+                <div class="flex gap-2 mt-4">
+                  <button @click.stop="editShelve(shelve)" class="bg-orange-500 text-white border-none px-2 py-1 rounded text-xs cursor-pointer transition-colors duration-300 hover:bg-orange-600">Edit</button>
+                  <button @click.stop="deleteShelve(shelve)" class="bg-red-500 text-white border-none px-2 py-1 rounded text-xs cursor-pointer transition-colors duration-300 hover:bg-red-600">Delete</button>
                 </div>
               </div>
             </div>
           </div>
-          <button @click="prevShelve" class="slider-nav prev" :disabled="shelveSliderOffset === 0">‹</button>
-          <button @click="nextShelve" class="slider-nav next" :disabled="!canScrollShelvesNext">›</button>
+          <button @click="prevShelve" class="absolute bg-black bg-opacity-50 text-white border-none w-10 h-10 rounded-full cursor-pointer text-lg transition-colors duration-300 z-10 top-1/2 left-[-20px] transform -translate-y-1/2 hover:bg-opacity-70 disabled:bg-opacity-20 disabled:cursor-not-allowed" :disabled="shelveSliderOffset === 0">‹</button>
+          <button @click="nextShelve" class="absolute bg-black bg-opacity-50 text-white border-none w-10 h-10 rounded-full cursor-pointer text-lg transition-colors duration-300 z-10 top-1/2 right-[-20px] transform -translate-y-1/2 hover:bg-opacity-70 disabled:bg-opacity-20 disabled:cursor-not-allowed" :disabled="!canScrollShelvesNext">›</button>
         </div>
       </div>
     </div>
 
     <!-- Floors Level -->
-    <div v-if="selectedShelve" class="level-container">
-      <h3>{{ selectedFloor ? `Selected Floor: ${selectedFloor.name}` : `Floors in ${selectedShelve.name}` }}</h3>
-      <div v-if="loadingFloors" class="loading">Loading floors...</div>
-      <div v-else-if="floors.length === 0" class="empty-state">
+    <div v-if="selectedShelve" class="p-5">
+      <h3 class="m-0 mb-5 text-gray-700">{{ selectedFloor ? `Selected Floor: ${selectedFloor.name}` : `Floors in ${selectedShelve.name}` }}</h3>
+      <div v-if="loadingFloors" class="text-center py-10 text-gray-600">Loading floors...</div>
+      <div v-else-if="floors.length === 0" class="text-center py-10 text-gray-600 italic">
         No floors found in this shelve.
       </div>
-      <div v-else class="slider-container">
-        <div class="slider-wrapper">
-          <div class="slider-content" :style="{ transform: `translateX(-${floorSliderOffset}px)` }">
+      <div v-else class="relative">
+        <div class="relative overflow-hidden w-full h-50">
+          <div class="flex flex-row transition-transform duration-300 ease-in-out gap-5" :style="{ transform: `translateX(-${floorSliderOffset}px)` }">
             <div 
               v-for="floor in floors" 
               :key="floor.id"
-              class="slider-item floor-item"
-              :class="{ selected: selectedFloor && selectedFloor.id === floor.id }"
+              class="min-h-32 min-w-64 bg-gray-50 rounded-lg p-5 cursor-pointer transition-all duration-300 border-2 border-transparent flex-shrink-0 border-l-4 border-l-green-500 hover:transform hover:-translate-y-1 hover:shadow-lg"
+              :class="{ 'border-2 border-blue-500 bg-blue-50': selectedFloor && selectedFloor.id === floor.id }"
               @click="selectFloor(floor)"
             >
-              <div class="item-content">
-                <h4>{{ floor.name }}</h4>
-                <p class="item-meta">ID: {{ floor.id }}</p>
-                <p class="item-meta">Shelve: {{ selectedShelve.name }}</p>
-                <div class="item-actions">
-                  <button @click.stop="editFloor(floor)" class="edit-btn">Edit</button>
-                  <button @click.stop="deleteFloor(floor)" class="delete-btn">Delete</button>
+              <div>
+                <h4 class="m-0 mb-2 text-gray-700">{{ floor.name }}</h4>
+                <p class="text-xs text-gray-500 my-1">ID: {{ floor.id }}</p>
+                <p class="text-xs text-gray-500 my-1">Shelve: {{ selectedShelve.name }}</p>
+                <div class="flex gap-2 mt-4">
+                  <button @click.stop="editFloor(floor)" class="bg-orange-500 text-white border-none px-2 py-1 rounded text-xs cursor-pointer transition-colors duration-300 hover:bg-orange-600">Edit</button>
+                  <button @click.stop="deleteFloor(floor)" class="bg-red-500 text-white border-none px-2 py-1 rounded text-xs cursor-pointer transition-colors duration-300 hover:bg-red-600">Delete</button>
                 </div>
               </div>
             </div>
           </div>
-          <button @click="prevFloor" class="slider-nav prev" :disabled="floorSliderOffset === 0">‹</button>
-          <button @click="nextFloor" class="slider-nav next" :disabled="!canScrollFloorsNext">›</button>
+          <button @click="prevFloor" class="absolute bg-black bg-opacity-50 text-white border-none w-10 h-10 rounded-full cursor-pointer text-lg transition-colors duration-300 z-10 top-1/2 left-[-20px] transform -translate-y-1/2 hover:bg-opacity-70 disabled:bg-opacity-20 disabled:cursor-not-allowed" :disabled="floorSliderOffset === 0">‹</button>
+          <button @click="nextFloor" class="absolute bg-black bg-opacity-50 text-white border-none w-10 h-10 rounded-full cursor-pointer text-lg transition-colors duration-300 z-10 top-1/2 right-[-20px] transform -translate-y-1/2 hover:bg-opacity-70 disabled:bg-opacity-20 disabled:cursor-not-allowed" :disabled="!canScrollFloorsNext">›</button>
         </div>
       </div>
     </div>
 
     <!-- Items Level -->
-    <div v-if="selectedFloor" class="level-container">
-      <h3>Items in {{ selectedFloor.name }}</h3>
-      <div v-if="loadingItems" class="loading">Loading items...</div>
-      <div v-else-if="items.length === 0" class="empty-state">
+    <div v-if="selectedFloor" class="p-5">
+      <h3 class="m-0 mb-5 text-gray-700">Items in {{ selectedFloor.name }}</h3>
+      <div v-if="loadingItems" class="text-center py-10 text-gray-600">Loading items...</div>
+      <div v-else-if="items.length === 0" class="text-center py-10 text-gray-600 italic">
         No items found in this floor.
       </div>
-      <div v-else class="slider-container">
-        <div class="slider-wrapper">
-          <div class="slider-content" :style="{ transform: `translateX(-${itemSliderOffset}px)` }">
+      <div v-else class="relative">
+        <div class="relative overflow-hidden w-full h-50">
+          <div class="flex flex-row transition-transform duration-300 ease-in-out gap-5" :style="{ transform: `translateX(-${itemSliderOffset}px)` }">
             <div 
               v-for="item in items" 
               :key="item.id"
-              class="slider-item item-item"
+              class="min-h-32 min-w-64 bg-gray-50 rounded-lg p-5 cursor-pointer transition-all duration-300 border-2 border-transparent flex-shrink-0 border-l-4 border-l-red-500"
             >
-              <div class="item-content">
-                <h4>{{ item.name }}</h4>
-                <div class="color-indicator" :style="{ backgroundColor: item.color }"></div>
-                <p class="item-meta">ID: {{ item.id }}</p>
-                <p class="item-meta">Floor: {{ selectedFloor.name }}</p>
-                <div class="item-actions">
-                  <button @click.stop="editItem(item)" class="edit-btn">Edit</button>
-                  <button @click.stop="deleteItem(item)" class="delete-btn">Delete</button>
+              <div>
+                <h4 class="m-0 mb-2 text-gray-700">{{ item.name }}</h4>
+                <div class="w-5 h-5 rounded-full my-2 border-2 border-gray-300" :style="{ backgroundColor: item.color }"></div>
+                <p class="text-xs text-gray-500 my-1">ID: {{ item.id }}</p>
+                <p class="text-xs text-gray-500 my-1">Floor: {{ selectedFloor.name }}</p>
+                <div class="flex gap-2 mt-4">
+                  <button @click.stop="editItem(item)" class="bg-orange-500 text-white border-none px-2 py-1 rounded text-xs cursor-pointer transition-colors duration-300 hover:bg-orange-600">Edit</button>
+                  <button @click.stop="deleteItem(item)" class="bg-red-500 text-white border-none px-2 py-1 rounded text-xs cursor-pointer transition-colors duration-300 hover:bg-red-600">Delete</button>
                 </div>
               </div>
             </div>
           </div>
-          <button @click="prevItem" class="slider-nav prev" :disabled="itemSliderOffset === 0">‹</button>
-          <button @click="nextItem" class="slider-nav next" :disabled="!canScrollItemsNext">›</button>
+          <button @click="prevItem" class="absolute bg-black bg-opacity-50 text-white border-none w-10 h-10 rounded-full cursor-pointer text-lg transition-colors duration-300 z-10 top-1/2 left-[-20px] transform -translate-y-1/2 hover:bg-opacity-70 disabled:bg-opacity-20 disabled:cursor-not-allowed" :disabled="itemSliderOffset === 0">‹</button>
+          <button @click="nextItem" class="absolute bg-black bg-opacity-50 text-white border-none w-10 h-10 rounded-full cursor-pointer text-lg transition-colors duration-300 z-10 top-1/2 right-[-20px] transform -translate-y-1/2 hover:bg-opacity-70 disabled:bg-opacity-20 disabled:cursor-not-allowed" :disabled="!canScrollItemsNext">›</button>
         </div>
       </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="modal-overlay" @click="cancelDelete">
-      <div class="modal" @click.stop>
-        <h3>Confirm Delete</h3>
+    <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click="cancelDelete">
+      <div class="bg-white p-5 rounded-lg max-w-md w-11/12" @click.stop>
+        <h3 class="mt-0 text-gray-700">Confirm Delete</h3>
         <p>Are you sure you want to delete "{{ itemToDelete?.name }}"?</p>
-        <p v-if="deleteType === 'shelve'" class="cascade-warning">
+        <p v-if="deleteType === 'shelve'" class="bg-yellow-100 text-yellow-800 p-2 rounded my-2 border border-yellow-300 text-sm">
           <strong>Warning:</strong> This will also delete all floors and items within this shelve.
         </p>
-        <p v-if="deleteType === 'floor'" class="cascade-warning">
+        <p v-if="deleteType === 'floor'" class="bg-yellow-100 text-yellow-800 p-2 rounded my-2 border border-yellow-300 text-sm">
           <strong>Warning:</strong> This will also delete all items within this floor.
         </p>
-        <div v-if="deleteError" class="error-message">
+        <div v-if="deleteError" class="bg-red-100 text-red-800 p-2 rounded my-2 border border-red-300 text-sm">
           {{ deleteError }}
         </div>
-        <div class="modal-actions">
-          <button @click="confirmDelete" class="confirm-btn" :disabled="isDeleteButtonDisabled">Yes, Delete</button>
-          <button @click="cancelDelete" class="cancel-btn">Cancel</button>
+        <div class="flex gap-2 justify-end mt-5">
+          <button @click="confirmDelete" class="bg-red-500 text-white border-none px-4 py-2 rounded cursor-pointer hover:bg-red-600 disabled:bg-gray-500 disabled:cursor-not-allowed" :disabled="isDeleteButtonDisabled">Yes, Delete</button>
+          <button @click="cancelDelete" class="bg-gray-500 text-white border-none px-4 py-2 rounded cursor-pointer hover:bg-gray-600">Cancel</button>
         </div>
       </div>
     </div>
 
     <!-- Edit Modal -->
-    <div v-if="showEditModal" class="modal-overlay" @click="cancelEdit">
-      <div class="modal" @click.stop>
-        <h3>Edit {{ editType === 'shelve' ? 'Shelve' : editType === 'floor' ? 'Floor' : 'Item' }}</h3>
+    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click="cancelEdit">
+      <div class="bg-white p-5 rounded-lg max-w-md w-11/12" @click.stop>
+        <h3 class="mt-0 text-gray-700">Edit {{ editType === 'shelve' ? 'Shelve' : editType === 'floor' ? 'Floor' : 'Item' }}</h3>
         <form @submit.prevent="confirmEdit">
-          <div class="form-group">
-            <label>Name:</label>
-            <input v-model="editForm.name" type="text" required />
+          <div class="mb-4">
+            <label class="block mb-1 font-bold text-gray-700">Name:</label>
+            <input v-model="editForm.name" type="text" required class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500" />
           </div>
-          <div v-if="editType === 'item'" class="form-group">
-            <label>Color:</label>
-            <input v-model="editForm.color" type="color" />
+          <div v-if="editType === 'item'" class="mb-4">
+            <label class="block mb-1 font-bold text-gray-700">Color:</label>
+            <input v-model="editForm.color" type="color" class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500" />
           </div>
-          <div v-if="editError" class="error-message">
+          <div v-if="editError" class="bg-red-100 text-red-800 p-2 rounded my-2 border border-red-300 text-sm">
             {{ editError }}
           </div>
-          <div class="modal-actions">
-            <button type="submit" class="confirm-btn" :disabled="!!editError">Save Changes</button>
-            <button type="button" @click="cancelEdit" class="cancel-btn">Cancel</button>
+          <div class="flex gap-2 justify-end mt-5">
+            <button type="submit" class="bg-red-500 text-white border-none px-4 py-2 rounded cursor-pointer hover:bg-red-600 disabled:bg-gray-500 disabled:cursor-not-allowed" :disabled="!!editError">Save Changes</button>
+            <button type="button" @click="cancelEdit" class="bg-gray-500 text-white border-none px-4 py-2 rounded cursor-pointer hover:bg-gray-600">Cancel</button>
           </div>
         </form>
       </div>
     </div>
 
     <!-- Create Modal -->
-    <div v-if="showCreateModal" class="modal-overlay" @click="cancelCreate">
-      <div class="modal" @click.stop>
-        <h3>Create {{ createType === 'shelve' ? 'Shelve' : createType === 'floor' ? 'Floor' : 'Item' }}</h3>
+    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click="cancelCreate">
+      <div class="bg-white p-5 rounded-lg max-w-md w-11/12" @click.stop>
+        <h3 class="mt-0 text-gray-700">Create {{ createType === 'shelve' ? 'Shelve' : createType === 'floor' ? 'Floor' : 'Item' }}</h3>
         <form @submit.prevent="confirmCreate">
-          <div class="form-group">
-            <label>Name:</label>
-            <input v-model="createForm.name" type="text" required />
+          <div class="mb-4">
+            <label class="block mb-1 font-bold text-gray-700">Name:</label>
+            <input v-model="createForm.name" type="text" required class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500" />
           </div>
-          <div v-if="createType === 'item'" class="form-group">
-            <label>Color:</label>
-            <input v-model="createForm.color" type="color" />
+          <div v-if="createType === 'item'" class="mb-4">
+            <label class="block mb-1 font-bold text-gray-700">Color:</label>
+            <input v-model="createForm.color" type="color" class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500" />
           </div>
-          <div v-if="createError" class="error-message">
+          <div v-if="createError" class="bg-red-100 text-red-800 p-2 rounded my-2 border border-red-300 text-sm">
             {{ createError }}
           </div>
-          <div class="modal-actions">
-            <button type="submit" class="confirm-btn" :disabled="!!createError">Create</button>
-            <button type="button" @click="cancelCreate" class="cancel-btn">Cancel</button>
+          <div class="flex gap-2 justify-end mt-5">
+            <button type="submit" class="bg-red-500 text-white border-none px-4 py-2 rounded cursor-pointer hover:bg-red-600 disabled:bg-gray-500 disabled:cursor-not-allowed" :disabled="!!createError">Create</button>
+            <button type="button" @click="cancelCreate" class="bg-gray-500 text-white border-none px-4 py-2 rounded cursor-pointer hover:bg-gray-600">Cancel</button>
           </div>
         </form>
       </div>
     </div>
 
     <!-- Create Buttons -->
-    <div class="create-buttons">
-      <button @click="openCreateModal('shelve')" class="create-btn">+ Add Shelve</button>
-      <button v-if="selectedShelve" @click="openCreateModal('floor')" class="create-btn">+ Add Floor</button>
-      <button v-if="selectedFloor" @click="openCreateModal('item')" class="create-btn">+ Add Item</button>
+    <div class="flex gap-4 p-5 justify-center bg-gray-100 border-t border-gray-200">
+      <button @click="openCreateModal('shelve')" class="bg-green-500 text-white border-none px-5 py-2 rounded cursor-pointer text-sm transition-colors duration-300 hover:bg-green-600">+ Add Shelve</button>
+      <button v-if="selectedShelve" @click="openCreateModal('floor')" class="bg-green-500 text-white border-none px-5 py-2 rounded cursor-pointer text-sm transition-colors duration-300 hover:bg-green-600">+ Add Floor</button>
+      <button v-if="selectedFloor" @click="openCreateModal('item')" class="bg-green-500 text-white border-none px-5 py-2 rounded cursor-pointer text-sm transition-colors duration-300 hover:bg-green-600">+ Add Item</button>
     </div>
   </div>
 </template>
@@ -610,346 +610,3 @@ watch(() => route.params.floorId, (newFloorId, oldFloorId) => {
   }
 }, { immediate: true })
 </script>
-
-<style scoped>
-.hierarchical-slider {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.breadcrumb-item {
-  background: none;
-  border: none;
-  color: #6c757d;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 5px 10px;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.breadcrumb-item:hover {
-  background: #e9ecef;
-  color: #495057;
-}
-
-.breadcrumb-item.active {
-  background: #007bff;
-  color: white;
-}
-
-.breadcrumb-separator {
-  margin: 0 10px;
-  color: #6c757d;
-}
-
-.level-container {
-  padding: 20px;
-}
-
-.level-container h3 {
-  margin: 0 0 20px 0;
-  color: #2c3e50;
-}
-
-.slider-container {
-  position: relative;
-}
-
-.slider-wrapper {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 200px;
-}
-
-.slider-content {
-display: flex;
-  flex-direction: row;
-  transition: transform 0.3s ease;
-  gap: 20px;
-}
-
-.slider-item {
-  min-height: 150px;
-  min-width: 250px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.3s;
-  border: 2px solid transparent;
-  flex-shrink: 0;
-}
-
-.slider-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.slider-item.selected {
-  border: 2px solid #007bff;
-  background: #e3f2fd;
-}
-
-.shelve-item {
-  border-left: 4px solid #3498db;
-}
-
-.floor-item {
-  border-left: 4px solid #27ae60;
-}
-
-.item-item {
-  border-left: 4px solid #e74c3c;
-}
-
-.item-content h4 {
-  margin: 0 0 10px 0;
-  color: #2c3e50;
-}
-
-.item-meta {
-  font-size: 12px;
-  color: #6c757d;
-  margin: 5px 0;
-}
-
-.color-indicator {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  margin: 10px 0;
-  border: 2px solid #ddd;
-}
-
-.item-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.edit-btn {
-  background: #f39c12;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.edit-btn:hover {
-  background: #e67e22;
-}
-
-.delete-btn {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.delete-btn:hover {
-  background: #c0392b;
-}
-
-.slider-nav {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 18px;
-  transition: background 0.3s;
-  z-index: 10;
-}
-
-.slider-nav:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.slider-nav:disabled {
-  background: rgba(0, 0, 0, 0.2);
-  cursor: not-allowed;
-}
-
-.slider-nav.prev {
-  top: 50%;
-  left: -20px;
-  transform: translateY(-50%);
-}
-
-.slider-nav.next {
-  top: 50%;
-  right: -20px;
-  transform: translateY(-50%);
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-  font-style: italic;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 400px;
-  width: 90%;
-}
-
-.modal h3 {
-  margin-top: 0;
-  color: #2c3e50;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-
-.confirm-btn {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.confirm-btn:hover {
-  background: #c0392b;
-}
-
-.cancel-btn {
-  background: #95a5a6;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.cancel-btn:hover {
-  background: #7f8c8d;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-.create-buttons {
-  display: flex;
-  gap: 15px;
-  padding: 20px;
-  justify-content: center;
-  background: #f8f9fa;
-  border-top: 1px solid #e9ecef;
-}
-
-.create-btn {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
-}
-
-.create-btn:hover {
-  background: #218838;
-}
-
-.error-message {
-  background: #f8d7da;
-  color: #721c24;
-  padding: 10px;
-  border-radius: 4px;
-  margin: 10px 0;
-  border: 1px solid #f5c6cb;
-  font-size: 14px;
-}
-
-.confirm-btn:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
-}
-
-.confirm-btn:disabled:hover {
-  background: #6c757d;
-}
-
-.cascade-warning {
-  background: #fff3cd;
-  color: #856404;
-  padding: 10px;
-  border-radius: 4px;
-  margin: 10px 0;
-  border: 1px solid #ffeaa7;
-  font-size: 14px;
-}
-</style>
