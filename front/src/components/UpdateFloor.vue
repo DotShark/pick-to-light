@@ -47,6 +47,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { fetchFromApi } from '@/utils/api'
 
 const props = defineProps({
   id: {
@@ -76,30 +77,21 @@ const messageClass = computed(() => ({
   'bg-red-100 text-red-800 border border-red-300': !isSuccess.value
 }))
 
-const fetchShelves = async () => {
+async function fetchShelves() {
   try {
-    const response = await fetch('http://localhost:4000/shelves')
-    if (response.ok) {
-      shelves.value = await response.json()
-    }
+    shelves.value = await fetchFromApi('shelves')
   } catch (error) {
     console.error('Error fetching shelves:', error)
   }
 }
 
-const fetchFloor = async () => {
+async function fetchFloor() {
   loadingItem.value = true
   loadError.value = ''
-  
   try {
-    const response = await fetch(`http://localhost:4000/floors/${props.id}`)
-    if (response.ok) {
-      const floor = await response.json()
-      floorData.name = floor.name
-      floorData.shelfId = floor.shelfId
-    } else {
-      throw new Error(`Failed to fetch floor: ${response.status}`)
-    }
+    const floor = await fetchFromApi(`floors/${props.id}`)
+    floorData.name = floor.name
+    floorData.shelfId = floor.shelfId
   } catch (error) {
     loadError.value = `Error loading floor: ${error.message}`
   } finally {
@@ -107,14 +99,12 @@ const fetchFloor = async () => {
   }
 }
 
-const updateFloor = async () => {
+async function updateFloor() {
   if (!floorData.name.trim() || !floorData.shelfId) return
-
   loading.value = true
   message.value = ''
-
   try {
-    const response = await fetch(`http://localhost:4000/floors/${props.id}`, {
+    await fetchFromApi(`floors/${props.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -124,19 +114,12 @@ const updateFloor = async () => {
         shelfId: Number(floorData.shelfId)
       })
     })
-
-    if (response.ok) {
-      message.value = 'Floor updated successfully!'
-      isSuccess.value = true
-      
-      emit('floor-updated')
-      
-      setTimeout(() => {
-        router.push('/manage')
-      }, 2000)
-    } else {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    message.value = 'Floor updated successfully!'
+    isSuccess.value = true
+    emit('floor-updated')
+    setTimeout(() => {
+      router.push('/manage')
+    }, 2000)
   } catch (error) {
     message.value = `Error updating floor: ${error.message}`
     isSuccess.value = false

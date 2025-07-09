@@ -191,6 +191,21 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
+// Utility API function
+async function apiRequest(url, options = {}) {
+  const response = await fetch(url, options)
+  const contentType = response.headers.get('content-type')
+  let data = null
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json()
+  }
+  if (!response.ok) {
+    const error = (data && data.message) || response.statusText || 'API error'
+    throw new Error(error)
+  }
+  return data
+}
+
 const route = useRoute()
 const router = useRouter()
 const emit = defineEmits(['refresh'])
@@ -242,25 +257,19 @@ const isDeleteButtonDisabled = computed(() => {
 })
 
 // Fetch data functions
-const fetchShelves = async () => {
+async function fetchShelves() {
   try {
-    const response = await fetch('http://localhost:4000/shelves')
-    if (response.ok) {
-      shelves.value = await response.json()
-    }
+    shelves.value = await apiRequest('http://localhost:4000/shelves')
   } catch (error) {
     console.error('Error fetching shelves:', error)
   }
 }
 
-const fetchFloors = async (shelveId) => {
+async function fetchFloors(shelveId) {
   loadingFloors.value = true
   try {
-    const response = await fetch(`http://localhost:4000/floors`)
-    if (response.ok) {
-      const allFloors = await response.json()
-      floors.value = allFloors.filter(floor => floor.shelfId == parseInt(shelveId))
-    }
+    const allFloors = await apiRequest('http://localhost:4000/floors')
+    floors.value = allFloors.filter(floor => floor.shelfId == parseInt(shelveId))
   } catch (error) {
     console.error('Error fetching floors:', error)
   } finally {
@@ -268,16 +277,12 @@ const fetchFloors = async (shelveId) => {
   }
 }
 
-const fetchItems = async (floorId) => {
+async function fetchItems(floorId) {
   loadingItems.value = true
   try {
-    const response = await fetch(`http://localhost:4000/items`)
-    if (response.ok) {
-      const allItems = await response.json()
-      items.value = allItems.filter(item => item.floorId == parseInt(floorId))
-      // Reset selected item when changing floors
-      selectedItemId.value = ''
-    }
+    const allItems = await apiRequest('http://localhost:4000/items')
+    items.value = allItems.filter(item => item.floorId == parseInt(floorId))
+    selectedItemId.value = ''
   } catch (error) {
     console.error('Error fetching items:', error)
   } finally {
@@ -286,42 +291,42 @@ const fetchItems = async (floorId) => {
 }
 
 // Navigation functions
-const onShelveSelect = () => {
+function onShelveSelect() {
   if (selectedShelveId.value) {
     router.push({ name: 'manageShelve', params: { shelveId: selectedShelveId.value } })
   }
 }
 
-const onFloorSelect = () => {
+function onFloorSelect() {
   if (selectedFloorId.value) {
     router.push({ name: 'manageFloor', params: { shelveId: selectedShelve.value.id, floorId: selectedFloorId.value } })
   }
 }
 
-const onItemSelect = () => {
+function onItemSelect() {
   // Item selection just updates the displayed details
 }
 
-const resetToShelves = () => {
+function resetToShelves() {
   selectedShelveId.value = ''
   selectedFloorId.value = ''
   selectedItemId.value = ''
   router.push({ name: 'manage' })
 }
 
-const goToFloors = () => {
+function goToFloors() {
   selectedFloorId.value = ''
   selectedItemId.value = ''
   router.push({ name: 'manageShelve', params: { shelveId: selectedShelve.value.id } })
 }
 
-const goToItems = () => {
+function goToItems() {
   selectedItemId.value = ''
   router.push({ name: 'manageFloor', params: { shelveId: selectedShelve.value.id, floorId: selectedFloor.value.id } })
 }
 
 // Edit functions
-const editShelve = (shelve) => {
+function editShelve(shelve) {
   itemToEdit.value = shelve
   editType.value = 'shelve'
   editForm.value = { name: shelve.name }
@@ -329,7 +334,7 @@ const editShelve = (shelve) => {
   showEditModal.value = true
 }
 
-const editFloor = (floor) => {
+function editFloor(floor) {
   itemToEdit.value = floor
   editType.value = 'floor'
   editForm.value = { name: floor.name }
@@ -337,7 +342,7 @@ const editFloor = (floor) => {
   showEditModal.value = true
 }
 
-const editItem = (item) => {
+function editItem(item) {
   itemToEdit.value = item
   editType.value = 'item'
   editForm.value = { name: item.name, color: item.color }
@@ -346,74 +351,68 @@ const editItem = (item) => {
 }
 
 // Delete functions
-const deleteShelve = (shelve) => {
+function deleteShelve(shelve) {
   itemToDelete.value = shelve
   deleteType.value = 'shelve'
   deleteError.value = null
   showDeleteModal.value = true
 }
 
-const deleteFloor = (floor) => {
+function deleteFloor(floor) {
   itemToDelete.value = floor
   deleteType.value = 'floor'
   deleteError.value = null
   showDeleteModal.value = true
 }
 
-const deleteItem = (item) => {
+function deleteItem(item) {
   itemToDelete.value = item
   deleteType.value = 'item'
   deleteError.value = null
   showDeleteModal.value = true
 }
 
-const confirmDelete = async () => {
+async function confirmDelete() {
   if (!itemToDelete.value) return
 
   try {
     const endpoint = deleteType.value === 'shelve' ? 'shelves' :
                    deleteType.value === 'floor' ? 'floors' : 'items'
 
-    const response = await fetch(`http://localhost:4000/${endpoint}/${itemToDelete.value.id}`, {
+    await apiRequest(`http://localhost:4000/${endpoint}/${itemToDelete.value.id}`, {
       method: 'DELETE'
     })
 
-    if (response.ok) {
-      // Refresh appropriate data
-      if (deleteType.value === 'shelve') {
-        await fetchShelves()
-        floors.value = []
-        items.value = []
-        selectedShelveId.value = ''
-        selectedFloorId.value = ''
-        selectedItemId.value = ''
-        resetToShelves()
-      } else if (deleteType.value === 'floor') {
-        await fetchFloors(selectedShelve.value.id)
-        items.value = []
-        selectedFloorId.value = ''
-        selectedItemId.value = ''
-        if (selectedFloor.value?.id === itemToDelete.value.id) {
-          goToFloors()
-        }
-      } else {
-        await fetchItems(selectedFloor.value.id)
-        selectedItemId.value = ''
+    // Refresh appropriate data
+    if (deleteType.value === 'shelve') {
+      await fetchShelves()
+      floors.value = []
+      items.value = []
+      selectedShelveId.value = ''
+      selectedFloorId.value = ''
+      selectedItemId.value = ''
+      resetToShelves()
+    } else if (deleteType.value === 'floor') {
+      await fetchFloors(selectedShelve.value.id)
+      items.value = []
+      selectedFloorId.value = ''
+      selectedItemId.value = ''
+      if (selectedFloor.value?.id === itemToDelete.value.id) {
+        goToFloors()
       }
-
-      emit('refresh')
-      cancelDelete()
     } else {
-      const errorData = await response.json()
-      deleteError.value = errorData.message || 'An error occurred while deleting the item.'
+      await fetchItems(selectedFloor.value.id)
+      selectedItemId.value = ''
     }
+
+    emit('refresh')
+    cancelDelete()
   } catch (error) {
-    console.error('Error deleting item:', error)
-    deleteError.value = 'An error occurred while deleting the item.'
+    deleteError.value = error.message || 'An error occurred while deleting the item.'
   }
 }
 
-const cancelDelete = () => {
+function cancelDelete() {
   showDeleteModal.value = false
   itemToDelete.value = null
   deleteType.value = ''
@@ -421,14 +420,14 @@ const cancelDelete = () => {
 }
 
 // Edit modal functions
-const confirmEdit = async () => {
+async function confirmEdit() {
   if (!itemToEdit.value) return
 
   try {
     const endpoint = editType.value === 'shelve' ? 'shelves' :
                    editType.value === 'floor' ? 'floors' : 'items'
 
-    const response = await fetch(`http://localhost:4000/${endpoint}/${itemToEdit.value.id}`, {
+    await apiRequest(`http://localhost:4000/${endpoint}/${itemToEdit.value.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -436,29 +435,23 @@ const confirmEdit = async () => {
       body: JSON.stringify(editForm.value)
     })
 
-    if (response.ok) {
-      // Refresh appropriate data
-      if (editType.value === 'shelve') {
-        await fetchShelves()
-      } else if (editType.value === 'floor') {
-        await fetchFloors(selectedShelve.value.id)
-      } else {
-        await fetchItems(selectedFloor.value.id)
-      }
-
-      emit('refresh')
-      cancelEdit()
+    // Refresh appropriate data
+    if (editType.value === 'shelve') {
+      await fetchShelves()
+    } else if (editType.value === 'floor') {
+      await fetchFloors(selectedShelve.value.id)
     } else {
-      const errorData = await response.json()
-      editError.value = errorData.message || 'An error occurred while updating the item.'
+      await fetchItems(selectedFloor.value.id)
     }
+
+    emit('refresh')
+    cancelEdit()
   } catch (error) {
-    console.error('Error updating item:', error)
-    editError.value = 'An error occurred while updating the item.'
+    editError.value = error.message || 'An error occurred while updating the item.'
   }
 }
 
-const cancelEdit = () => {
+function cancelEdit() {
   showEditModal.value = false
   itemToEdit.value = null
   editType.value = ''
@@ -467,66 +460,48 @@ const cancelEdit = () => {
 }
 
 // Create modal functions
-const openCreateModal = (type) => {
+function openCreateModal(type) {
   createType.value = type
   createForm.value = type === 'item' ? { name: '', color: '#000000' } : { name: '' }
   createError.value = null
   showCreateModal.value = true
 }
-const confirmCreate = async () => {
+
+async function confirmCreate() {
   try {
     const endpoint = createType.value === 'shelve' ? 'shelves' : 
                    createType.value === 'floor' ? 'floors' : 'items'
-    
     const payload = { ...createForm.value }
-    
-    // Add parent ID for floors and items
     if (createType.value === 'floor' && selectedShelve.value) {
       payload.shelfId = selectedShelve.value.id
     } else if (createType.value === 'item' && selectedFloor.value) {
       payload.floorId = selectedFloor.value.id
     }
-    
-    const response = await fetch(`http://localhost:4000/${endpoint}`, {
+    const createdItem = await apiRequest(`http://localhost:4000/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
     })
-
-    if (response.ok) {
-      const createdItem = await response.json()
-      
-      // Refresh appropriate data and navigate
-      if (createType.value === 'shelve') {
-        await fetchShelves()
-        // Navigate to the newly created shelve
-        router.push({ name: 'manageShelve', params: { shelveId: createdItem.id.toString() } })
-      } else if (createType.value === 'floor') {
-        await fetchFloors(selectedShelve.value.id)
-        // Navigate to the newly created floor
-        router.push({ name: 'manageFloor', params: { shelveId: selectedShelve.value.id.toString(), floorId: createdItem.id.toString() } })
-      } else {
-        await fetchItems(selectedFloor.value.id)
-        // For items, set the selectedItemId to the newly created item
-        selectedItemId.value = createdItem.id.toString()
-      }
-      
-      emit('refresh')
-      cancelCreate()
+    if (createType.value === 'shelve') {
+      await fetchShelves()
+      router.push({ name: 'manageShelve', params: { shelveId: createdItem.id.toString() } })
+    } else if (createType.value === 'floor') {
+      await fetchFloors(selectedShelve.value.id)
+      router.push({ name: 'manageFloor', params: { shelveId: selectedShelve.value.id.toString(), floorId: createdItem.id.toString() } })
     } else {
-      // Handle error response
-      const errorData = await response.json()
-      createError.value = errorData.message || 'An error occurred while creating the item.'
+      await fetchItems(selectedFloor.value.id)
+      selectedItemId.value = createdItem.id.toString()
     }
+    emit('refresh')
+    cancelCreate()
   } catch (error) {
-    console.error('Error creating item:', error)
-    createError.value = 'An error occurred while creating the item.'
+    createError.value = error.message || 'An error occurred while creating the item.'
   }
 }
 
-const cancelCreate = () => {
+function cancelCreate() {
   showCreateModal.value = false
   createType.value = ''
   createForm.value = {}

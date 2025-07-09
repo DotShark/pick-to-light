@@ -51,7 +51,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { fetchFromApi } from '@/utils/api'
 
 const props = defineProps({
   shelves: {
@@ -83,21 +84,15 @@ const cancelDelete = () => {
   shelveToDelete.value = null
 }
 
-const confirmDelete = async () => {
+async function confirmDelete() {
   if (!shelveToDelete.value) return
-  
   try {
-    const response = await fetch(`http://localhost:4000/shelves/${shelveToDelete.value.id}`, {
+    await fetchFromApi(`shelves/${shelveToDelete.value.id}`, {
       method: 'DELETE',
     })
-    
-    if (response.ok) {
-      emit('refresh')
-      showDeleteConfirm.value = false
-      shelveToDelete.value = null
-    } else {
-      throw new Error(`Failed to delete: ${response.status}`)
-    }
+    emit('refresh')
+    showDeleteConfirm.value = false
+    shelveToDelete.value = null
   } catch (error) {
     console.error('Error deleting shelve:', error)
     alert(`Error deleting shelve: ${error.message}`)

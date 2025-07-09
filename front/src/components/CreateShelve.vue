@@ -23,6 +23,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { fetchFromApi } from '@/utils/api'
 
 const emit = defineEmits(['shelve-created'])
 
@@ -40,33 +41,27 @@ const messageClass = computed(() => ({
   'bg-red-100 text-red-800 border border-red-300': !isSuccess.value
 }))
 
-const createShelve = async () => {
+async function createShelve() {
   if (!shelveData.name.trim()) return
 
   loading.value = true
   message.value = ''
 
   try {
-    const response = await fetch('http://localhost:4000/shelves', {
+    await fetchFromApi('shelves', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name: shelveData.name
-      })
+      body: JSON.stringify({ name: shelveData.name })
     })
 
-    if (response.ok) {
-      message.value = 'Shelve created successfully!'
-      isSuccess.value = true
-      shelveData.name = '' // Reset form
-      
-      // Emit event to notify parent component
-      emit('shelve-created')
-    } else {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    message.value = 'Shelve created successfully!'
+    isSuccess.value = true
+    shelveData.name = '' // Reset form
+
+    // Emit event to notify parent component
+    emit('shelve-created')
   } catch (error) {
     message.value = `Error creating shelve: ${error.message}`
     isSuccess.value = false

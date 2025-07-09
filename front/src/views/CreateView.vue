@@ -55,6 +55,7 @@ import UpdateShelve from '../components/UpdateShelve.vue'
 import UpdateFloor from '../components/UpdateFloor.vue'
 import UpdateItem from '../components/UpdateItem.vue'
 import ShelvesListWithEdit from '../components/ShelvesListWithEdit.vue'
+import { API_URL, fetchFromApi } from '@/utils/api'
 
 // Determine if we are in update mode
 const route = useRoute()
@@ -70,18 +71,24 @@ const floors = ref([])
 const floorsLoading = ref(false)
 const floorsError = ref('')
 
-// Fetch shelves from API
-const fetchShelves = async () => {
+// Event handlers for child component events
+function handleShelveCreated() {
+  fetchShelves()
+}
+
+function handleFloorCreated() {
+  fetchFloors()
+}
+
+function handleItemCreated() {
+  // Items don't affect other dropdowns, but we could add logic here if needed
+}
+
+async function fetchShelves() {
   shelvesLoading.value = true
   shelvesError.value = ''
-  
   try {
-    const response = await fetch('http://localhost:4000/shelves')
-    if (response.ok) {
-      shelves.value = await response.json()
-    } else {
-      throw new Error(`Failed to fetch shelves: ${response.status}`)
-    }
+    shelves.value = await fetchFromApi('shelves')
   } catch (error) {
     shelvesError.value = `Error loading shelves: ${error.message}`
   } finally {
@@ -89,36 +96,16 @@ const fetchShelves = async () => {
   }
 }
 
-// Fetch floors from API
-const fetchFloors = async () => {
+async function fetchFloors() {
   floorsLoading.value = true
   floorsError.value = ''
-  
   try {
-    const response = await fetch('http://localhost:4000/floors')
-    if (response.ok) {
-      floors.value = await response.json()
-    } else {
-      throw new Error(`Failed to fetch floors: ${response.status}`)
-    }
+    floors.value = await fetchFromApi('floors')
   } catch (error) {
     floorsError.value = `Error loading floors: ${error.message}`
   } finally {
     floorsLoading.value = false
   }
-}
-
-// Event handlers for child component events
-const handleShelveCreated = () => {
-  fetchShelves() // Refresh shelves list
-}
-
-const handleFloorCreated = () => {
-  fetchFloors() // Refresh floors list
-}
-
-const handleItemCreated = () => {
-  // Items don't affect other dropdowns, but we could add logic here if needed
 }
 
 // Load initial data when component mounts

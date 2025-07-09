@@ -140,57 +140,40 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { fetchFromApi } from '@/utils/api'
 
-// Router
 const router = useRouter()
 
-// State management
 const currentStep = ref('shelves')
 const selectedShelve = ref(null)
 const selectedFloor = ref(null)
 
-// Data
 const shelves = ref([])
 const floors = ref([])
 const items = ref([])
 
-// Loading states
 const loadingFloors = ref(false)
 const loadingItems = ref(false)
 const updatingItem = ref(null)
 
-// Fetch functions
-const fetchShelves = async () => {
+async function fetchShelves() {
   try {
-    const response = await fetch('http://localhost:4000/shelves')
-    if (response.ok) {
-      shelves.value = await response.json()
-    }
+    shelves.value = await fetchFromApi('shelves')
   } catch (error) {
     console.error('Error fetching shelves:', error)
   }
 }
 
-const fetchFloors = async (shelfId) => {
+async function fetchFloors(shelfId) {
   loadingFloors.value = true
   try {
-    const response = await fetch('http://localhost:4000/floors')
-    if (response.ok) {
-      const allFloors = await response.json()
-      console.log('Debug - All floors:', allFloors)
-      console.log('Debug - Shelf ID to filter:', shelfId)
-
-      // Try both possible field names
-      const filteredFloors = allFloors.filter(floor =>
-        floor.shelfId == parseInt(shelfId) ||
-        floor.shelf_id == parseInt(shelfId)
-      )
-
-      console.log('Debug - Filtered floors:', filteredFloors)
-      floors.value = filteredFloors
-    }
+    const allFloors = await fetchFromApi('floors')
+    floors.value = allFloors.filter(floor =>
+      floor.shelfId == parseInt(shelfId) ||
+      floor.shelf_id == parseInt(shelfId)
+    )
   } catch (error) {
     console.error('Error fetching floors:', error)
   } finally {
@@ -198,24 +181,14 @@ const fetchFloors = async (shelfId) => {
   }
 }
 
-const fetchItems = async (floorId) => {
+async function fetchItems(floorId) {
   loadingItems.value = true
   try {
-    const response = await fetch('http://localhost:4000/items')
-    if (response.ok) {
-      const allItems = await response.json()
-      console.log('Debug - All items:', allItems)
-      console.log('Debug - Floor ID to filter:', floorId)
-
-      // Try both possible field names
-      const filteredItems = allItems.filter(item =>
-        item.floorId == parseInt(floorId) ||
-        item.floor_id == parseInt(floorId)
-      )
-
-      console.log('Debug - Filtered items:', filteredItems)
-      items.value = filteredItems
-    }
+    const allItems = await fetchFromApi('items')
+    items.value = allItems.filter(item =>
+      item.floorId == parseInt(floorId) ||
+      item.floor_id == parseInt(floorId)
+    )
   } catch (error) {
     console.error('Error fetching items:', error)
   } finally {
@@ -223,20 +196,19 @@ const fetchItems = async (floorId) => {
   }
 }
 
-// Navigation functions
-const selectShelf = (shelf) => {
+function selectShelf(shelf) {
   selectedShelve.value = shelf
   currentStep.value = 'floors'
   fetchFloors(shelf.id)
 }
 
-const selectFloor = (floor) => {
+function selectFloor(floor) {
   selectedFloor.value = floor
   currentStep.value = 'items'
   fetchItems(floor.id)
 }
 
-const goToShelves = () => {
+function goToShelves() {
   currentStep.value = 'shelves'
   selectedShelve.value = null
   selectedFloor.value = null
@@ -244,41 +216,30 @@ const goToShelves = () => {
   items.value = []
 }
 
-const goToFloors = () => {
+function goToFloors() {
   currentStep.value = 'floors'
   selectedFloor.value = null
   items.value = []
 }
 
-const goToItems = () => {
+function goToItems() {
   currentStep.value = 'items'
 }
 
-const goToManage = () => {
+function goToManage() {
   router.push('/manage')
 }
 
-// Item activation functions
-const activateItem = async (item) => {
+async function activateItem(item) {
   updatingItem.value = item.id
   try {
-    const response = await fetch(`http://localhost:4000/items/${item.id}`, {
+    await fetchFromApi(`items/${item.id}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ color: '#008000' })
     })
-
-    if (response.ok) {
-      // Update local state
-      const itemIndex = items.value.findIndex(i => i.id === item.id)
-      if (itemIndex !== -1) {
-        items.value[itemIndex].color = '#008000'
-      }
-    } else {
-      console.error('Error activating item:', response.statusText)
-    }
+    const idx = items.value.findIndex(i => i.id === item.id)
+    if (idx !== -1) items.value[idx].color = '#008000'
   } catch (error) {
     console.error('Error activating item:', error)
   } finally {
@@ -286,26 +247,16 @@ const activateItem = async (item) => {
   }
 }
 
-const deactivateItem = async (item) => {
+async function deactivateItem(item) {
   updatingItem.value = item.id
   try {
-    const response = await fetch(`http://localhost:4000/items/${item.id}`, {
+    await fetchFromApi(`items/${item.id}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ color: '#000000' })
     })
-
-    if (response.ok) {
-      // Update local state
-      const itemIndex = items.value.findIndex(i => i.id === item.id)
-      if (itemIndex !== -1) {
-        items.value[itemIndex].color = '#000000'
-      }
-    } else {
-      console.error('Error deactivating item:', response.statusText)
-    }
+    const idx = items.value.findIndex(i => i.id === item.id)
+    if (idx !== -1) items.value[idx].color = '#000000'
   } catch (error) {
     console.error('Error deactivating item:', error)
   } finally {
@@ -313,17 +264,12 @@ const deactivateItem = async (item) => {
   }
 }
 
-// Initialize
 onMounted(() => {
   fetchShelves()
 })
 
-// Expose functions for parent component
 defineExpose({
   navigateToItem: (item) => {
-    // This function will be called from the parent to navigate to a specific item
-    // We need to find the shelf and floor for this item and navigate there
-    // For now, we'll implement a basic version
     console.log('Navigate to item:', item)
   }
 })

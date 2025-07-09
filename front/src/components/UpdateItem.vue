@@ -60,6 +60,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { fetchFromApi } from '@/utils/api'
 
 const props = defineProps({
   id: {
@@ -90,31 +91,22 @@ const messageClass = computed(() => ({
   'bg-red-100 text-red-800 border border-red-300': !isSuccess.value
 }))
 
-const fetchFloors = async () => {
+async function fetchFloors() {
   try {
-    const response = await fetch('http://localhost:4000/floors')
-    if (response.ok) {
-      floors.value = await response.json()
-    }
+    floors.value = await fetchFromApi('floors')
   } catch (error) {
     console.error('Error fetching floors:', error)
   }
 }
 
-const fetchItem = async () => {
+async function fetchItem() {
   loadingItem.value = true
   loadError.value = ''
-  
   try {
-    const response = await fetch(`http://localhost:4000/items/${props.id}`)
-    if (response.ok) {
-      const item = await response.json()
-      itemData.name = item.name
-      itemData.color = item.color
-      itemData.floorId = item.floorId
-    } else {
-      throw new Error(`Failed to fetch item: ${response.status}`)
-    }
+    const item = await fetchFromApi(`items/${props.id}`)
+    itemData.name = item.name
+    itemData.color = item.color
+    itemData.floorId = item.floorId
   } catch (error) {
     loadError.value = `Error loading item: ${error.message}`
   } finally {
@@ -122,14 +114,12 @@ const fetchItem = async () => {
   }
 }
 
-const updateItem = async () => {
+async function updateItem() {
   if (!itemData.name.trim() || !itemData.color.trim() || !itemData.floorId) return
-
   loading.value = true
   message.value = ''
-
   try {
-    const response = await fetch(`http://localhost:4000/items/${props.id}`, {
+    await fetchFromApi(`items/${props.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -140,19 +130,12 @@ const updateItem = async () => {
         floorId: Number(itemData.floorId)
       })
     })
-
-    if (response.ok) {
-      message.value = 'Item updated successfully!'
-      isSuccess.value = true
-      
-      emit('item-updated')
-      
-      setTimeout(() => {
-        router.push('/manage')
-      }, 2000)
-    } else {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    message.value = 'Item updated successfully!'
+    isSuccess.value = true
+    emit('item-updated')
+    setTimeout(() => {
+      router.push('/manage')
+    }, 2000)
   } catch (error) {
     message.value = `Error updating item: ${error.message}`
     isSuccess.value = false

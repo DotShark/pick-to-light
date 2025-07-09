@@ -29,6 +29,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { fetchFromApi } from '@/utils/api'
 
 const props = defineProps({
   id: {
@@ -56,18 +57,12 @@ const messageClass = computed(() => ({
   'bg-red-100 text-red-800 border border-red-300': !isSuccess.value
 }))
 
-const fetchShelve = async () => {
+async function fetchShelve() {
   loadingItem.value = true
   loadError.value = ''
-  
   try {
-    const response = await fetch(`http://localhost:4000/shelves/${props.id}`)
-    if (response.ok) {
-      const shelve = await response.json()
-      shelveData.name = shelve.name
-    } else {
-      throw new Error(`Failed to fetch shelve: ${response.status}`)
-    }
+    const shelve = await fetchFromApi(`shelves/${props.id}`)
+    shelveData.name = shelve.name
   } catch (error) {
     loadError.value = `Error loading shelve: ${error.message}`
   } finally {
@@ -75,37 +70,24 @@ const fetchShelve = async () => {
   }
 }
 
-const updateShelve = async () => {
+async function updateShelve() {
   if (!shelveData.name.trim()) return
-
   loading.value = true
   message.value = ''
-
   try {
-    const response = await fetch(`http://localhost:4000/shelves/${props.id}`, {
+    await fetchFromApi(`shelves/${props.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name: shelveData.name
-      })
+      body: JSON.stringify({ name: shelveData.name })
     })
-
-    if (response.ok) {
-      message.value = 'Shelve updated successfully!'
-      isSuccess.value = true
-      
-      // Emit event to notify parent component
-      emit('shelve-updated')
-      
-      // Redirect to create page after 2 seconds
-      setTimeout(() => {
-        router.push('/create')
-      }, 2000)
-    } else {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    message.value = 'Shelve updated successfully!'
+    isSuccess.value = true
+    emit('shelve-updated')
+    setTimeout(() => {
+      router.push('/create')
+    }, 2000)
   } catch (error) {
     message.value = `Error updating shelve: ${error.message}`
     isSuccess.value = false

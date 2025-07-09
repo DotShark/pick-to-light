@@ -39,6 +39,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
 import SelectionNavigator from '../components/SelectionNavigator.vue'
+import { API_URL, fetchFromApi } from '@/utils/api'
 
 const router = useRouter()
 
@@ -47,20 +48,17 @@ const showActiveItemsPopup = ref(false)
 const activeItems = ref([])
 
 // Fetch active items (color !== #000000)
-const fetchActiveItems = async () => {
+async function fetchActiveItems() {
   try {
-    const response = await fetch('http://localhost:4000/items')
-    if (response.ok) {
-      const allItems = await response.json()
-      activeItems.value = allItems.filter(item => item.color !== '#000000')
-    }
+    const allItems = await fetchFromApi('items')
+    activeItems.value = allItems.filter(item => item.color !== '#000000')
   } catch (error) {
     console.error('Error fetching active items:', error)
   }
 }
 
 // Navigate to a specific item
-const navigateToItem = (item) => {
+function navigateToItem(item) {
   // This function will be implemented to navigate to the specific item
   // For now, we'll close the popup
   closeActiveItemsPopup()
@@ -72,12 +70,12 @@ const navigateToItem = (item) => {
 }
 
 // Close active items popup
-const closeActiveItemsPopup = () => {
+function closeActiveItemsPopup() {
   showActiveItemsPopup.value = false
 }
 
 // Show active items popup if there are active items
-const checkAndShowActiveItems = async () => {
+async function checkAndShowActiveItems() {
   await fetchActiveItems()
   if (activeItems.value.length > 0) {
     showActiveItemsPopup.value = true

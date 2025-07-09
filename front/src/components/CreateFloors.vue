@@ -43,6 +43,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { fetchFromApi } from '@/utils/api'
 
 const emit = defineEmits(['floor-created'])
 
@@ -77,22 +78,19 @@ const messageClass = computed(() => ({
   'bg-red-100 text-red-800 border border-red-300': !isSuccess.value
 }))
 
-const createFloor = async () => {
+async function createFloor() {
   if (!floorData.name.trim() || !floorData.shelf_id) return
 
   loading.value = true
   message.value = ''
 
-  // Ensure shelfId is a number
   const payload = {
     name: floorData.name,
     shelfId: Number(floorData.shelf_id)
   }
 
-  console.log('Sending payload:', payload)
-
   try {
-    const response = await fetch('http://localhost:4000/floors/', {
+    await fetchFromApi('floors/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -100,19 +98,13 @@ const createFloor = async () => {
       body: JSON.stringify(payload)
     })
 
-    if (response.ok) {
-      message.value = 'Floor created successfully!'
-      isSuccess.value = true
-      floorData.name = '' // Reset form
-      floorData.shelf_id = ''
-      
-      // Emit event to notify parent component
-      emit('floor-created')
-    } else {
-      const errorData = await response.text()
-      console.error('Server response:', errorData)
-      throw new Error(`HTTP error! status: ${response.status} - ${errorData}`)
-    }
+    message.value = 'Floor created successfully!'
+    isSuccess.value = true
+    floorData.name = '' // Reset form
+    floorData.shelf_id = ''
+    
+    // Emit event to notify parent component
+    emit('floor-created')
   } catch (error) {
     message.value = `Error creating floor: ${error.message}`
     isSuccess.value = false
