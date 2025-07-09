@@ -30,7 +30,7 @@
     </div>
 
     <!-- Shelves Card -->
-    <div v-if="currentLevel === 'shelves'" class="card">
+    <div class="card">
       <div class="card-header">
         <h3>Shelves</h3>
         <button @click="openCreateModal('shelve')" class="create-btn">+ Add Shelve</button>
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Floors Card -->
-    <div v-if="currentLevel === 'floors'" class="card">
+    <div v-if="selectedShelve" class="card">
       <div class="card-header">
         <h3>Floors in {{ selectedShelve.name }}</h3>
         <button @click="openCreateModal('floor')" class="create-btn">+ Add Floor</button>
@@ -83,7 +83,7 @@
     </div>
 
     <!-- Items Card -->
-    <div v-if="currentLevel === 'items'" class="card">
+    <div v-if="selectedFloor" class="card">
       <div class="card-header">
         <h3>Items in {{ selectedFloor.name }}</h3>
         <button @click="openCreateModal('item')" class="create-btn">+ Add Item</button>
@@ -530,11 +530,25 @@ onMounted(() => {
 
 // Watch route changes
 watch(() => route.params, (newParams) => {
-  if (newParams.shelveId && !floors.value.some(f => f.shelfId == newParams.shelveId)) {
-    fetchFloors(parseInt(newParams.shelveId))
+  // Synchronize dropdown selections with route params
+  if (newParams.shelveId) {
+    selectedShelveId.value = newParams.shelveId
+    if (!floors.value.some(f => f.shelfId == newParams.shelveId)) {
+      fetchFloors(parseInt(newParams.shelveId))
+    }
+  } else {
+    selectedShelveId.value = ''
+    floors.value = []
   }
-  if (newParams.floorId && !items.value.some(i => i.floorId == newParams.floorId)) {
-    fetchItems(parseInt(newParams.floorId))
+  
+  if (newParams.floorId) {
+    selectedFloorId.value = newParams.floorId
+    if (!items.value.some(i => i.floorId == newParams.floorId)) {
+      fetchItems(parseInt(newParams.floorId))
+    }
+  } else {
+    selectedFloorId.value = ''
+    items.value = []
   }
 }, { immediate: true })
 </script>
