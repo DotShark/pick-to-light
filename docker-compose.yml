@@ -13,7 +13,16 @@ services:
       HOST: ${API_HOST}
       LOG_LEVEL: ${LOG_LEVEL}
       APP_KEY: ${APP_KEY}
-      MQTT_URL: ${MQTT_URL}
+      MQTT_URL: "mqtt://${MQTT_HOST}:${MQTT_PORT}"
+    networks:
+      - pick-to-light
+    restart: unless-stopped
+
+  front:
+    build: ./front
+    container_name: pick-to-light-front
+    ports:
+      - "${FRONT_PORT}:4173"
     networks:
       - pick-to-light
     restart: unless-stopped
@@ -22,7 +31,7 @@ services:
     image: eclipse-mosquitto:latest
     container_name: pick-to-light-mosquitto
     ports:
-      - "1883:1883"
+      - "${MQTT_PORT}:1883"
     volumes:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
