@@ -35,8 +35,14 @@
         <h3 class="m-0 text-slate-700">Select a Shelf</h3>
       </div>
       <div class="p-5">
-        <div v-if="shelves.length === 0" class="text-center text-gray-600 p-10 italic">
-          No shelves found.
+        <div v-if="shelves.length === 0" class="text-center text-gray-600 p-10">
+          <p class="mb-4 italic">No shelves found. Create your first shelve to get started.</p>
+          <button
+            @click="goToManage"
+            class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors cursor-pointer font-medium"
+          >
+            Go to Management
+          </button>
         </div>
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="shelf in shelves" :key="shelf.id"
@@ -58,8 +64,14 @@
         <div v-if="loadingFloors" class="text-center p-10 text-gray-600">
           Loading floors...
         </div>
-        <div v-else-if="floors.length === 0" class="text-center text-gray-600 p-10 italic">
-          No floors found in this shelf.
+        <div v-else-if="floors.length === 0" class="text-center text-gray-600 p-10">
+          <p class="mb-4 italic">No floors found in this shelf.</p>
+          <button
+            @click="goToManage"
+            class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors cursor-pointer font-medium"
+          >
+            Go to Management
+          </button>
         </div>
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="floor in floors" :key="floor.id"
@@ -81,8 +93,14 @@
         <div v-if="loadingItems" class="text-center p-10 text-gray-600">
           Loading items...
         </div>
-        <div v-else-if="items.length === 0" class="text-center text-gray-600 p-10 italic">
-          No items found in this floor.
+        <div v-else-if="items.length === 0" class="text-center text-gray-600 p-10">
+          <p class="mb-4 italic">No items found in this floor.</p>
+          <button
+            @click="goToManage"
+            class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors cursor-pointer font-medium"
+          >
+            Go to Management
+          </button>
         </div>
         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="item in items" :key="item.id"
@@ -123,6 +141,10 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+// Router
+const router = useRouter()
 
 // State management
 const currentStep = ref('shelves')
@@ -230,6 +252,10 @@ const goToFloors = () => {
 
 const goToItems = () => {
   currentStep.value = 'items'
+}
+
+const goToManage = () => {
+  router.push('/manage')
 }
 
 // Item activation functions
