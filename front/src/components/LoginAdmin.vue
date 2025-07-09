@@ -44,7 +44,6 @@
     <div class="p-4 bg-gray-50 border-t border-gray-200">
       <router-link to="/login" class="block">
         <button class="w-full bg-gray-600 text-white p-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer">
-          <img src="@images/back.svg" alt="Retour" class="w-4 h-4" />
           Retour à la connexion
         </button>
       </router-link>
