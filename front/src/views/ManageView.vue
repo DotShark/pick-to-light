@@ -1,12 +1,12 @@
 <template>
   <div class="manage-view">
     <h1>Manage Elements</h1>
-    <HierarchicalSlider />
+    <HierarchicalCards />
   </div>
 </template>
 
 <script setup>
-import HierarchicalSlider from '../components/HierarchicalSlider.vue'
+import HierarchicalCards from '../components/HierarchicalCards.vue'
 
 defineProps({
   shelveId: {
