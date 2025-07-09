@@ -289,7 +289,7 @@ const fetchFloors = async (shelveId) => {
     const response = await fetch(`http://localhost:4000/floors`)
     if (response.ok) {
       const allFloors = await response.json()
-      floors.value = allFloors.filter(floor => floor.shelfId == shelveId)
+      floors.value = allFloors.filter(floor => floor.shelfId == parseInt(shelveId))
     }
   } catch (error) {
     console.error('Error fetching floors:', error)
@@ -304,7 +304,9 @@ const fetchItems = async (floorId) => {
     const response = await fetch(`http://localhost:4000/items`)
     if (response.ok) {
       const allItems = await response.json()
-      items.value = allItems.filter(item => item.floorId == floorId)
+      items.value = allItems.filter(item => item.floorId == parseInt(floorId))
+      // Reset item slider offset when changing floors
+      itemSliderOffset.value = 0
     }
   } catch (error) {
     console.error('Error fetching items:', error)
@@ -593,11 +595,18 @@ onMounted(() => {
 
 // Watch route changes
 watch(() => route.params, (newParams) => {
-  if (newParams.shelveId && !floors.value.some(f => f.shelfId == newParams.shelveId)) {
+  if (newParams.shelveId && !floors.value.some(f => f.shelfId == parseInt(newParams.shelveId))) {
     fetchFloors(parseInt(newParams.shelveId))
   }
-  if (newParams.floorId && !items.value.some(i => i.floorId == newParams.floorId)) {
+  if (newParams.floorId && !items.value.some(i => i.floorId == parseInt(newParams.floorId))) {
     fetchItems(parseInt(newParams.floorId))
+  }
+}, { immediate: true })
+
+// Watch for floor changes to reset item selection
+watch(() => route.params.floorId, (newFloorId, oldFloorId) => {
+  if (newFloorId !== oldFloorId && newFloorId) {
+    itemSliderOffset.value = 0
   }
 }, { immediate: true })
 </script>

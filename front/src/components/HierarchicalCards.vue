@@ -102,10 +102,10 @@
 {{ item.name }} ({{ item.id }})
             </option>
           </select>
-          <div v-if="selectedItemId" class="flex justify-between items-center p-3 bg-gray-100 rounded border border-gray-200">
+          <div v-if="selectedItemId && selectedItemDetails" class="flex justify-between items-center p-3 bg-gray-100 rounded border border-gray-200">
             <div class="flex items-center gap-2">
-              <div class="w-5 h-5 rounded-full border border-gray-300" :style="{ backgroundColor: selectedItemDetails?.color }"></div>
-              <span>{{ selectedItemDetails?.name }}</span>
+              <div class="w-5 h-5 rounded-full border border-gray-300" :style="{ backgroundColor: selectedItemDetails.color }"></div>
+              <span>{{ selectedItemDetails.name }}</span>
             </div>
             <div class="flex gap-3">
               <button @click="editItem(selectedItemDetails)" class="bg-yellow-400 text-black border-none px-2 py-1 rounded cursor-pointer text-xs transition-colors duration-300 hover:bg-yellow-500">Edit</button>
@@ -259,7 +259,7 @@ const fetchFloors = async (shelveId) => {
     const response = await fetch(`http://localhost:4000/floors`)
     if (response.ok) {
       const allFloors = await response.json()
-      floors.value = allFloors.filter(floor => floor.shelfId == shelveId)
+      floors.value = allFloors.filter(floor => floor.shelfId == parseInt(shelveId))
     }
   } catch (error) {
     console.error('Error fetching floors:', error)
@@ -274,7 +274,9 @@ const fetchItems = async (floorId) => {
     const response = await fetch(`http://localhost:4000/items`)
     if (response.ok) {
       const allItems = await response.json()
-      items.value = allItems.filter(item => item.floorId == floorId)
+      items.value = allItems.filter(item => item.floorId == parseInt(floorId))
+      // Reset selected item when changing floors
+      selectedItemId.value = ''
     }
   } catch (error) {
     console.error('Error fetching items:', error)
@@ -533,7 +535,7 @@ watch(() => route.params, (newParams) => {
   // Synchronize dropdown selections with route params
   if (newParams.shelveId) {
     selectedShelveId.value = newParams.shelveId
-    if (!floors.value.some(f => f.shelfId == newParams.shelveId)) {
+    if (!floors.value.some(f => f.shelfId == parseInt(newParams.shelveId))) {
       fetchFloors(parseInt(newParams.shelveId))
     }
   } else {
@@ -543,7 +545,7 @@ watch(() => route.params, (newParams) => {
 
   if (newParams.floorId) {
     selectedFloorId.value = newParams.floorId
-    if (!items.value.some(i => i.floorId == newParams.floorId)) {
+    if (!items.value.some(i => i.floorId == parseInt(newParams.floorId))) {
       fetchItems(parseInt(newParams.floorId))
     }
   } else {
