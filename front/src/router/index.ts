@@ -28,6 +28,11 @@ const router = createRouter({
       component: () => import('@views/LoginAdminView.vue'),
     },
     {
+      path: '/select',
+      name: 'select',
+      component: () => import('@views/SelectView.vue'),
+    },
+    {
       path: '/manage',
       name: 'manage',
       component: () => import('@views/ManageView.vue'),
