@@ -131,6 +131,12 @@
       <div class="modal" @click.stop>
         <h3>Confirm Delete</h3>
         <p>Are you sure you want to delete "{{ itemToDelete?.name }}"?</p>
+        <p v-if="deleteType === 'shelve'" class="cascade-warning">
+          <strong>Warning:</strong> This will also delete all floors and items within this shelve.
+        </p>
+        <p v-if="deleteType === 'floor'" class="cascade-warning">
+          <strong>Warning:</strong> This will also delete all items within this floor.
+        </p>
         <div v-if="deleteError" class="error-message">
           {{ deleteError }}
         </div>
@@ -433,15 +439,7 @@ const confirmDelete = async () => {
     } else {
       // Handle error response
       const errorData = await response.json()
-      if (errorData.message && errorData.message.includes('FOREIGN KEY constraint failed')) {
-        const itemType = deleteType.value === 'shelve' ? 'shelve' : 
-                        deleteType.value === 'floor' ? 'floor' : 'item'
-        const childType = deleteType.value === 'shelve' ? 'floors' : 
-                         deleteType.value === 'floor' ? 'items' : ''
-        deleteError.value = `Cannot delete this ${itemType} because it contains ${childType}. Please delete all ${childType} first.`
-      } else {
-        deleteError.value = errorData.message || 'An error occurred while deleting the item.'
-      }
+      deleteError.value = errorData.message || 'An error occurred while deleting the item.'
     }
   } catch (error) {
     console.error('Error deleting item:', error)
@@ -903,5 +901,15 @@ display: flex;
 
 .confirm-btn:disabled:hover {
   background: #6c757d;
+}
+
+.cascade-warning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+  border: 1px solid #ffeaa7;
+  font-size: 14px;
 }
 </style>
