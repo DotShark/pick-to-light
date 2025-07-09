@@ -81,7 +81,8 @@ def fetch_items_from_floor(floor_id: int):
     floor_data = response.json()
     print(f"🏗 Floor: {floor_data['name']}")
     for item in floor_data["items"]:
-        update_led(item["slot"], item["color"])
+        if item["slot"] or item["slot"] == 0:
+            update_led(item["slot"], item["color"])
 
 
 def update_led(slot: int, color: str):
