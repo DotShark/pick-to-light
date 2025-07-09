@@ -117,7 +117,7 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click="cancelDelete">
+    <div v-if="showDeleteModal" class="fixed inset-0 flex justify-center items-center z-50" style="background-color: rgba(0, 0, 0, 0.3);" @click="cancelDelete">
       <div class="bg-white rounded p-5 max-w-sm w-11/12 max-h-[90vh] overflow-y-auto" @click.stop>
         <h3 class="mb-5 text-lg text-gray-800">Confirm Delete</h3>
         <p>Are you sure you want to delete "{{ itemToDelete?.name }}"?</p>
@@ -138,7 +138,7 @@
     </div>
 
     <!-- Edit Modal -->
-    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click="cancelEdit">
+    <div v-if="showEditModal" class="fixed inset-0 flex justify-center items-center z-50" style="background-color: rgba(0, 0, 0, 0.3);" @click="cancelEdit">
       <div class="bg-white rounded p-5 max-w-sm w-11/12 max-h-[90vh] overflow-y-auto" @click.stop>
         <h3 class="mb-5 text-lg text-gray-800">Edit {{ editType === 'shelve' ? 'Shelve' : editType === 'floor' ? 'Floor' : 'Item' }}</h3>
         <form @submit.prevent="confirmEdit">
@@ -162,7 +162,7 @@
     </div>
 
     <!-- Create Modal -->
-    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click="cancelCreate">
+    <div v-if="showCreateModal" class="fixed inset-0 flex justify-center items-center z-50" style="background-color: rgba(0, 0, 0, 0.3);" @click="cancelCreate">
       <div class="bg-white rounded p-5 max-w-sm w-11/12 max-h-[90vh] overflow-y-auto" @click.stop>
         <h3 class="mb-5 text-lg text-gray-800">Create {{ createType === 'shelve' ? 'Shelve' : createType === 'floor' ? 'Floor' : 'Item' }}</h3>
         <form @submit.prevent="confirmCreate">

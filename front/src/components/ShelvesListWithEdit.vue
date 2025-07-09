@@ -37,7 +37,7 @@
     </div>
     
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" @click="cancelDelete">
+    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black/30 flex justify-center items-center z-50" @click="cancelDelete">
       <div class="bg-white p-5 rounded-lg max-w-sm w-11/12" @click.stop>
         <h3 class="mt-0 text-slate-700">Confirm Delete</h3>
         <p>Are you sure you want to delete "{{ shelveToDelete?.name }}"?</p>
