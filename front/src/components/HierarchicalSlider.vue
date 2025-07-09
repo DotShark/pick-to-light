@@ -433,11 +433,20 @@ const confirmDelete = async () => {
       // Refresh appropriate data
       if (deleteType.value === 'shelve') {
         await fetchShelves()
-        if (selectedShelve.value?.id === itemToDelete.value.id) {
-          resetToShelves()
-        }
+        // Clear floors and items since they were deleted with CASCADE
+        floors.value = []
+        items.value = []
+        // Reset slider offsets
+        floorSliderOffset.value = 0
+        itemSliderOffset.value = 0
+        // Always navigate back to shelves when deleting a shelve
+        resetToShelves()
       } else if (deleteType.value === 'floor') {
         await fetchFloors(selectedShelve.value.id)
+        // Clear items since they were deleted with CASCADE
+        items.value = []
+        // Reset item slider offset
+        itemSliderOffset.value = 0
         if (selectedFloor.value?.id === itemToDelete.value.id) {
           goToFloors()
         }
