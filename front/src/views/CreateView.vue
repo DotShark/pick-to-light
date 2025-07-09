@@ -1,29 +1,65 @@
 <template>
   <div class="create-view">
-    <h1>Create Elements</h1>
+    <h1>{{ isUpdate ? 'Update Element' : 'Create Elements' }}</h1>
     <div class="components-container">
-      <CreateShelve @shelve-created="handleShelveCreated" />
-      <CreateFloors 
-        :shelves="shelves" 
-        :shelves-loading="shelvesLoading"
-        :shelves-error="shelvesError"
-        @floor-created="handleFloorCreated" 
+      <!-- Update Mode -->
+      <UpdateShelve 
+        v-if="isUpdate && type === 'shelve'"
+        :id="route.params.id"
+        @shelve-updated="handleShelveCreated" 
       />
-      <CreateItems 
-        :floors="floors"
-        :floors-loading="floorsLoading"
-        :floors-error="floorsError"
-        @item-created="handleItemCreated"
+      <UpdateFloor 
+        v-if="isUpdate && type === 'floor'"
+        :id="route.params.id"
+        @floor-updated="handleFloorCreated" 
       />
+      <UpdateItem 
+        v-if="isUpdate && type === 'item'"
+        :id="route.params.id"
+        @item-updated="handleItemCreated" 
+      />
+      
+      <!-- Create Mode -->
+      <template v-else>
+        <CreateShelve @shelve-created="handleShelveCreated" />
+        <CreateFloors 
+          :shelves="shelves" 
+          :shelves-loading="shelvesLoading"
+          :shelves-error="shelvesError"
+          @floor-created="handleFloorCreated" 
+        />
+        <CreateItems 
+          :floors="floors"
+          :floors-loading="floorsLoading"
+          :floors-error="floorsError"
+          @item-created="handleItemCreated"
+        />
+        <ShelvesListWithEdit 
+          :shelves="shelves"
+          :loading="shelvesLoading"
+          :error="shelvesError"
+          @refresh="fetchShelves"
+        />
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import CreateShelve from '../components/CreateShelve.vue'
 import CreateFloors from '../components/CreateFloors.vue'
 import CreateItems from '../components/CreateItems.vue'
+import UpdateShelve from '../components/UpdateShelve.vue'
+import UpdateFloor from '../components/UpdateFloor.vue'
+import UpdateItem from '../components/UpdateItem.vue'
+import ShelvesListWithEdit from '../components/ShelvesListWithEdit.vue'
+
+// Determine if we are in update mode
+const route = useRoute()
+const isUpdate = computed(() => route.params.id !== undefined)
+const type = computed(() => route.params.type || 'shelve')
 
 // Centralized data management
 const shelves = ref([])

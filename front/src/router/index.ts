@@ -28,9 +28,21 @@ const router = createRouter({
       component: () => import('@views/LoginAdminView.vue'),
     },
     {
-      path: '/create',
-      name: 'create',
-      component: () => import('@views/CreateView.vue'),
+      path: '/manage',
+      name: 'manage',
+      component: () => import('@views/ManageView.vue'),
+    },
+    {
+      path: '/manage/shelve/:shelveId',
+      name: 'manageShelve',
+      component: () => import('@views/ManageView.vue'),
+      props: true,
+    },
+    {
+      path: '/manage/shelve/:shelveId/floor/:floorId',
+      name: 'manageFloor',
+      component: () => import('@views/ManageView.vue'),
+      props: true,
     },
   ],
 })
