@@ -4,28 +4,18 @@
       <div class="flex items-center justify-between h-16">
         <!-- Logo/Brand -->
         <div class="flex items-center">
-          <router-link to="/" class="text-xl font-bold text-slate-700 hover:text-blue-600 transition-colors">
+          <span class="text-xl font-bold text-slate-700">
             PickToLight
-          </router-link>
+          </span>
         </div>
 
         <!-- Navigation Links -->
         <div class="flex space-x-1">
           <router-link
-            to="/"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
-            :class="isActive('/') 
-              ? 'bg-blue text-white' 
-              : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'"
-          >
-            Home
-          </router-link>
-
-          <router-link
             to="/select"
             class="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
-            :class="isActive('/select') 
-              ? 'bg-blue text-white' 
+            :class="isActive('/select')
+              ? 'bg-blue text-white'
               : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'"
           >
             Select
@@ -34,39 +24,25 @@
           <router-link
             to="/manage"
             class="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
-            :class="isActive('/manage') 
-              ? 'bg-green text-white' 
-              : 'text-gray-700 hover:bg-gray-100 hover:text-green-600'"
+            :class="isActive('/manage')
+              ? 'bg-blue text-white'
+              : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'"
           >
             Manage
           </router-link>
-
-          <router-link
-            to="/about"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
-            :class="isActive('/about') 
-              ? 'bg-gray-600 text-white' 
-              : 'text-gray-700 hover:bg-gray-100 hover:text-gray-600'"
-          >
-            About
-          </router-link>
         </div>
 
-        <!-- User Actions -->
-        <div class="flex items-center space-x-2">
-          <router-link
-            to="/login"
-            class="px-3 py-1 text-sm text-gray-600 hover:text-blue-600 transition-colors cursor-pointer"
+        <!-- Logout Button -->
+        <div class="flex items-center">
+          <button
+            @click="logout"
+            class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer"
           >
-            Login
-          </router-link>
-          <span class="text-gray-400">|</span>
-          <router-link
-            to="/login-admin"
-            class="px-3 py-1 text-sm text-green-600 hover:text-green-700 transition-colors cursor-pointer font-medium"
-          >
-            Admin
-          </router-link>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>Logout</span>
+          </button>
         </div>
       </div>
     </div>
@@ -74,10 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { computed } from 'vue'
 
 const route = useRoute()
+const router = useRouter()
 
 // Function to check if a route is active
 const isActive = (path: string) => {
@@ -85,5 +62,12 @@ const isActive = (path: string) => {
     return route.path === '/'
   }
   return route.path.startsWith(path)
+}
+
+// Logout function
+const logout = () => {
+  // Here you would typically clear authentication tokens/session
+  // For now, we'll just redirect to login
+  router.push('/login')
 }
 </script>

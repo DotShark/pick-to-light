@@ -32,7 +32,7 @@
           />
         </div>
 
-        <router-link to="/" class="block">
+        <router-link to="/select" class="block">
           <button class="w-full bg-blue text-white p-3 rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer">
             Se connecter
           </button>
