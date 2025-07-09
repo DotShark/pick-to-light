@@ -1,18 +1,19 @@
 <template>
-  <div class="create-shelve">
-    <h2>Create Shelve</h2>
-    <form @submit.prevent="createShelve" class="form">
-      <div class="form-group">
-        <label for="shelve-name">Name:</label>
+  <div class="bg-white p-5 rounded-lg shadow-lg">
+    <h2 class="text-slate-700 mb-5 text-xl font-semibold">Create Shelve</h2>
+    <form @submit.prevent="createShelve" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1">
+        <label for="shelve-name" class="font-medium text-gray-600">Name:</label>
         <input
           id="shelve-name"
           v-model="shelveData.name"
           type="text"
           required
           placeholder="Enter shelve name"
+          class="p-2.5 border border-gray-300 rounded bg-white text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20"
         />
       </div>
-      <button type="submit" :disabled="loading" class="submit-btn">
+      <button type="submit" :disabled="loading" class="bg-blue-500 text-white border-none py-3 px-5 rounded cursor-pointer text-sm transition-colors duration-300 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed">
         {{ loading ? 'Creating...' : 'Create Shelve' }}
       </button>
     </form>
@@ -34,9 +35,9 @@ const message = ref('')
 const isSuccess = ref(false)
 
 const messageClass = computed(() => ({
-  message: true,
-  success: isSuccess.value,
-  error: !isSuccess.value
+  'mt-4 p-2.5 rounded text-sm': true,
+  'bg-green-100 text-green-800 border border-green-300': isSuccess.value,
+  'bg-red-100 text-red-800 border border-red-300': !isSuccess.value
 }))
 
 const createShelve = async () => {
@@ -75,85 +76,3 @@ const createShelve = async () => {
 }
 </script>
 
-<style scoped>
-.create-shelve {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-label {
-  font-weight: 500;
-  color: #555;
-}
-
-input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-}
-
-.submit-btn {
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background: #2980b9;
-}
-
-.submit-btn:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-</style> 
