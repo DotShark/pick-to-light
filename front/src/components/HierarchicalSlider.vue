@@ -160,8 +160,11 @@
             <label>Color:</label>
             <input v-model="editForm.color" type="color" />
           </div>
+          <div v-if="editError" class="error-message">
+            {{ editError }}
+          </div>
           <div class="modal-actions">
-            <button type="submit" class="confirm-btn">Save Changes</button>
+            <button type="submit" class="confirm-btn" :disabled="!!editError">Save Changes</button>
             <button type="button" @click="cancelEdit" class="cancel-btn">Cancel</button>
           </div>
         </form>
@@ -181,8 +184,11 @@
             <label>Color:</label>
             <input v-model="createForm.color" type="color" />
           </div>
+          <div v-if="createError" class="error-message">
+            {{ createError }}
+          </div>
           <div class="modal-actions">
-            <button type="submit" class="confirm-btn">Create</button>
+            <button type="submit" class="confirm-btn" :disabled="!!createError">Create</button>
             <button type="button" @click="cancelCreate" class="cancel-btn">Cancel</button>
           </div>
         </form>
@@ -240,11 +246,13 @@ const showEditModal = ref(false)
 const itemToEdit = ref(null)
 const editType = ref('')
 const editForm = ref({})
+const editError = ref(null)
 
 // Create modal
 const showCreateModal = ref(false)
 const createType = ref('')
 const createForm = ref({})
+const createError = ref(null)
 
 // Computed properties
 const canScrollShelvesNext = computed(() => {
@@ -365,6 +373,7 @@ const editShelve = (shelve) => {
   itemToEdit.value = shelve
   editType.value = 'shelve'
   editForm.value = { name: shelve.name }
+  editError.value = null
   showEditModal.value = true
 }
 
@@ -372,6 +381,7 @@ const editFloor = (floor) => {
   itemToEdit.value = floor
   editType.value = 'floor'
   editForm.value = { name: floor.name }
+  editError.value = null
   showEditModal.value = true
 }
 
@@ -379,6 +389,7 @@ const editItem = (item) => {
   itemToEdit.value = item
   editType.value = 'item'
   editForm.value = { name: item.name, color: item.color }
+  editError.value = null
   showEditModal.value = true
 }
 
@@ -463,7 +474,7 @@ const confirmEdit = async () => {
                    editType.value === 'floor' ? 'floors' : 'items'
     
     const response = await fetch(`http://localhost:4000/${endpoint}/${itemToEdit.value.id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -481,12 +492,16 @@ const confirmEdit = async () => {
       }
       
       emit('refresh')
+      cancelEdit()
+    } else {
+      // Handle error response
+      const errorData = await response.json()
+      editError.value = errorData.message || 'An error occurred while updating the item.'
     }
   } catch (error) {
     console.error('Error updating item:', error)
+    editError.value = 'An error occurred while updating the item.'
   }
-
-  cancelEdit()
 }
 
 const cancelEdit = () => {
@@ -494,12 +509,14 @@ const cancelEdit = () => {
   itemToEdit.value = null
   editType.value = ''
   editForm.value = {}
+  editError.value = null
 }
 
 // Create modal functions
 const openCreateModal = (type) => {
   createType.value = type
   createForm.value = type === 'item' ? { name: '', color: '#000000' } : { name: '' }
+  createError.value = null
   showCreateModal.value = true
 }
 
@@ -536,18 +553,23 @@ const confirmCreate = async () => {
       }
       
       emit('refresh')
+      cancelCreate()
+    } else {
+      // Handle error response
+      const errorData = await response.json()
+      createError.value = errorData.message || 'An error occurred while creating the item.'
     }
   } catch (error) {
     console.error('Error creating item:', error)
+    createError.value = 'An error occurred while creating the item.'
   }
-
-  cancelCreate()
 }
 
 const cancelCreate = () => {
   showCreateModal.value = false
   createType.value = ''
   createForm.value = {}
+  createError.value = null
 }
 
 // Utility functions
