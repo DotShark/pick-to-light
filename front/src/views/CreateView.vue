@@ -1,7 +1,7 @@
 <template>
-  <div class="create-view">
-    <h1>{{ isUpdate ? 'Update Element' : 'Create Elements' }}</h1>
-    <div class="components-container">
+  <div class="p-5 max-w-7xl mx-auto">
+    <h1 class="text-center text-slate-700 mb-8 text-2xl font-bold">{{ isUpdate ? 'Update Element' : 'Create Elements' }}</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-5">
       <!-- Update Mode -->
       <UpdateShelve 
         v-if="isUpdate && type === 'shelve'"
@@ -128,23 +128,3 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.create-view {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.components-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
-h1 {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
-}
-</style>

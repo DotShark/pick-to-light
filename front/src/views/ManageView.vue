@@ -1,6 +1,6 @@
 <template>
-  <div class="manage-view">
-    <h1>Manage Elements</h1>
+  <div class="p-5 max-w-7xl mx-auto">
+    <h1 class="text-center text-slate-700 mb-8 text-2xl font-bold">Manage Elements</h1>
     <HierarchicalCards />
   </div>
 </template>
@@ -20,16 +20,3 @@ defineProps({
 })
 </script>
 
-<style scoped>
-.manage-view {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-h1 {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
-}
-</style>

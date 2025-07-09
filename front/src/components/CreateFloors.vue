@@ -1,23 +1,25 @@
 <template>
-  <div class="create-floors">
-    <h2>Create Floor</h2>
-    <form @submit.prevent="createFloor" class="form">
-      <div class="form-group">
-        <label for="floor-name">Name:</label>
+  <div class="bg-white p-5 rounded-lg shadow-lg">
+    <h2 class="text-slate-700 mb-5 text-xl font-semibold">Create Floor</h2>
+    <form @submit.prevent="createFloor" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1">
+        <label for="floor-name" class="font-medium text-gray-600">Name:</label>
         <input
           id="floor-name"
           v-model="floorData.name"
           type="text"
           required
           placeholder="Enter floor name"
+          class="p-2.5 border border-gray-300 rounded bg-white text-sm focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:ring-opacity-20"
         />
       </div>
-      <div class="form-group">
-        <label for="shelf-select">Shelf:</label>
+      <div class="flex flex-col gap-1">
+        <label for="shelf-select" class="font-medium text-gray-600">Shelf:</label>
         <select
           id="shelf-select"
           v-model="floorData.shelf_id"
           required
+          class="p-2.5 border border-gray-300 rounded bg-white text-sm cursor-pointer focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:ring-opacity-20"
         >
           <option value="" disabled>Select a shelf</option>
           <option 
@@ -28,10 +30,10 @@
             {{ shelf.name }} (ID: {{ shelf.id }})
           </option>
         </select>
-        <div v-if="props.shelvesLoading" class="loading-text">Loading shelves...</div>
-        <div v-if="props.shelvesError" class="error-text">{{ props.shelvesError }}</div>
+        <div v-if="props.shelvesLoading" class="text-xs text-gray-500 italic">Loading shelves...</div>
+        <div v-if="props.shelvesError" class="text-xs text-red-600">{{ props.shelvesError }}</div>
       </div>
-      <button type="submit" :disabled="loading || props.shelvesLoading" class="submit-btn">
+      <button type="submit" :disabled="loading || props.shelvesLoading" class="bg-green-600 text-white border-none py-3 px-5 rounded cursor-pointer text-sm transition-colors duration-300 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
         {{ loading ? 'Creating...' : 'Create Floor' }}
       </button>
     </form>
@@ -70,9 +72,9 @@ const message = ref('')
 const isSuccess = ref(false)
 
 const messageClass = computed(() => ({
-  message: true,
-  success: isSuccess.value,
-  error: !isSuccess.value
+  'mt-4 p-2.5 rounded text-sm': true,
+  'bg-green-100 text-green-800 border border-green-300': isSuccess.value,
+  'bg-red-100 text-red-800 border border-red-300': !isSuccess.value
 }))
 
 const createFloor = async () => {
@@ -120,101 +122,3 @@ const createFloor = async () => {
 }
 </script>
 
-<style scoped>
-.create-floors {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-label {
-  font-weight: 500;
-  color: #555;
-}
-
-input, select {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  background: white;
-}
-
-input:focus, select:focus {
-  outline: none;
-  border-color: #27ae60;
-  box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
-}
-
-select {
-  cursor: pointer;
-}
-
-.loading-text {
-  font-size: 12px;
-  color: #666;
-  font-style: italic;
-}
-
-.error-text {
-  font-size: 12px;
-  color: #e74c3c;
-}
-
-.submit-btn {
-  background: #27ae60;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background: #229954;
-}
-
-.submit-btn:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-</style> 

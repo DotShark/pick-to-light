@@ -1,38 +1,40 @@
 <template>
-  <div class="update-item">
-    <h2>Update Item</h2>
-    <div v-if="loadingItem" class="loading">Loading item data...</div>
-    <div v-else-if="loadError" class="error">{{ loadError }}</div>
-    <form v-else @submit.prevent="updateItem" class="form">
-      <div class="form-group">
-        <label for="item-name">Name:</label>
+  <div class="bg-white p-5 rounded-lg shadow-lg">
+    <h2 class="text-slate-700 mb-5 text-xl font-semibold">Update Item</h2>
+    <div v-if="loadingItem" class="text-center p-5 text-gray-500">Loading item data...</div>
+    <div v-else-if="loadError" class="bg-red-100 text-red-800 border border-red-300 p-2.5 rounded mb-5">{{ loadError }}</div>
+    <form v-else @submit.prevent="updateItem" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1">
+        <label for="item-name" class="font-medium text-gray-600">Name:</label>
         <input
           id="item-name"
           v-model="itemData.name"
           type="text"
           required
           placeholder="Enter item name"
+          class="p-2.5 border border-gray-300 rounded bg-white text-sm focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:ring-opacity-20"
         />
       </div>
-      <div class="form-group">
-        <label for="item-color">Color:</label>
-        <div class="color-picker-wrapper">
+      <div class="flex flex-col gap-1">
+        <label for="item-color" class="font-medium text-gray-600">Color:</label>
+        <div class="flex items-center gap-3">
           <input
             id="item-color"
             v-model="itemData.color"
             type="color"
-            class="color-picker"
+            class="w-12 h-10 border-2 border-gray-300 rounded-lg cursor-pointer bg-none p-0 transition-colors duration-200 hover:border-gray-400 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:ring-opacity-20"
             required
           />
-          <span class="color-value">{{ itemData.color }}</span>
+          <span class="font-mono text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded tracking-wide">{{ itemData.color }}</span>
         </div>
       </div>
-      <div class="form-group">
-        <label for="floor-select">Floor:</label>
+      <div class="flex flex-col gap-1">
+        <label for="floor-select" class="font-medium text-gray-600">Floor:</label>
         <select
           id="floor-select"
           v-model="itemData.floorId"
           required
+          class="p-2.5 border border-gray-300 rounded bg-white text-sm focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500 focus:ring-opacity-20"
         >
           <option value="" disabled>Select a floor</option>
           <option 
@@ -44,11 +46,11 @@
           </option>
         </select>
       </div>
-      <div class="form-actions">
-        <button type="submit" :disabled="loading" class="submit-btn">
+      <div class="flex gap-2.5 items-center">
+        <button type="submit" :disabled="loading" class="bg-orange-500 text-white border-none py-3 px-5 rounded cursor-pointer text-sm transition-colors duration-300 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed">
           {{ loading ? 'Updating...' : 'Update Item' }}
         </button>
-        <router-link to="/manage" class="cancel-btn">Cancel</router-link>
+        <router-link to="/manage" class="bg-gray-500 text-white no-underline py-3 px-5 rounded text-sm transition-colors duration-300 hover:bg-gray-600">Cancel</router-link>
       </div>
     </form>
     <div v-if="message" :class="messageClass">{{ message }}</div>
@@ -83,9 +85,9 @@ const message = ref('')
 const isSuccess = ref(false)
 
 const messageClass = computed(() => ({
-  message: true,
-  success: isSuccess.value,
-  error: !isSuccess.value
+  'mt-4 p-2.5 rounded text-sm': true,
+  'bg-green-100 text-green-800 border border-green-300': isSuccess.value,
+  'bg-red-100 text-red-800 border border-red-300': !isSuccess.value
 }))
 
 const fetchFloors = async () => {
@@ -165,173 +167,3 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.update-item {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-}
-
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-
-.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-label {
-  font-weight: 500;
-  color: #555;
-}
-
-input, select {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-input:focus, select:focus {
-  outline: none;
-  border-color: #e74c3c;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
-}
-
-.color-picker-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.color-picker {
-  width: 50px;
-  height: 40px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  cursor: pointer;
-  background: none;
-  padding: 0;
-  transition: border-color 0.2s ease;
-}
-
-.color-picker::-webkit-color-swatch-wrapper {
-  padding: 0;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.color-picker::-webkit-color-swatch {
-  border: none;
-  border-radius: 6px;
-}
-
-.color-picker::-moz-color-swatch {
-  border: none;
-  border-radius: 6px;
-}
-
-.color-picker:hover {
-  border-color: #999;
-}
-
-.color-picker:focus {
-  outline: none;
-  border-color: #e74c3c;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
-}
-
-.color-value {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 13px;
-  color: #666;
-  background: #f8f9fa;
-  padding: 4px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.5px;
-}
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.submit-btn {
-  background: #f39c12;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background: #e67e22;
-}
-
-.submit-btn:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.cancel-btn {
-  background: #95a5a6;
-  color: white;
-  text-decoration: none;
-  padding: 12px 20px;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: background 0.3s;
-}
-
-.cancel-btn:hover {
-  background: #7f8c8d;
-}
-
-.message {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.message.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.message.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-</style>
