@@ -3,9 +3,9 @@ import LoginForm from '@components/Login.vue'
 </script>
 
 <template>
-  <main class="h-dvh pt-16 flex items-center flex-col justify-between px-6 pb-6">
-    <h1 class="text-3xl text-blue font-black font-inter size-fit">Connection</h1>
-
-    <LoginForm />
-  </main>
+  <div class="p-5 max-w-7xl mx-auto min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+      <LoginForm />
+    </div>
+  </div>
 </template>

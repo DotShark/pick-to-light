@@ -3,12 +3,9 @@ import LoginAdmin from '@components/LoginAdmin.vue'
 </script>
 
 <template>
-  <main class="h-dvh pt-16 flex items-center flex-col justify-between px-6 pb-6">
-    <div class="flex flex-col items-center justify-center text-green font-black font-inter size-fit text-3xl gap-2">
-      <h1>Connection</h1>
-      <h1>Administrateur</h1>
+  <div class="p-5 max-w-7xl mx-auto min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md">
+      <LoginAdmin />
     </div>
-
-    <LoginAdmin />
-  </main>
+  </div>
 </template>
