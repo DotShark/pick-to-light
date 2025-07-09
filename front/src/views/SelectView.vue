@@ -1,6 +1,7 @@
 <template>
-  <div class="p-5 max-w-7xl mx-auto">
-    <h1 class="text-center text-slate-700 mb-8 text-2xl font-bold">Select Elements</h1>
+  <AppLayout>
+    <div class="p-5 max-w-7xl mx-auto">
+      <h1 class="text-center text-slate-700 mb-8 text-2xl font-bold">Select Elements</h1>
     
     <!-- Active Items Pop-up -->
     <div v-if="showActiveItemsPopup" class="fixed inset-0 flex justify-center items-center z-50" style="background-color: rgba(0, 0, 0, 0.3);" @click="closeActiveItemsPopup">
@@ -28,13 +29,15 @@
       </div>
     </div>
 
-    <SelectionNavigator />
-  </div>
+      <SelectionNavigator />
+    </div>
+  </AppLayout>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import AppLayout from '@/components/AppLayout.vue'
 import SelectionNavigator from '../components/SelectionNavigator.vue'
 
 const router = useRouter()
