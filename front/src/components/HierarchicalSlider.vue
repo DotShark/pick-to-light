@@ -554,13 +554,26 @@ const confirmCreate = async () => {
     })
 
     if (response.ok) {
-      // Refresh appropriate data
+      const createdItem = await response.json()
+      console.log('Created item:', createdItem)
+      console.log('Create type:', createType.value)
+      
+      // Refresh appropriate data and navigate
       if (createType.value === 'shelve') {
         await fetchShelves()
+        console.log('Navigating to shelve:', createdItem.id)
+        // Navigate to the newly created shelve
+        router.push({ name: 'manageShelve', params: { shelveId: createdItem.id.toString() } })
       } else if (createType.value === 'floor') {
         await fetchFloors(selectedShelve.value.id)
+        console.log('Navigating to floor:', createdItem.id)
+        // Navigate to the newly created floor
+        router.push({ name: 'manageFloor', params: { shelveId: selectedShelve.value.id.toString(), floorId: createdItem.id.toString() } })
       } else {
         await fetchItems(selectedFloor.value.id)
+        console.log('Positioning slider for item:', createdItem.id)
+        // For items, just stay on the same page but position slider to show the new item
+        await positionSliderToShowItem(createdItem.id)
       }
       
       emit('refresh')
@@ -588,6 +601,55 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
+// Function to position slider to show a specific item
+const positionSliderToShowItem = async (itemId) => {
+  console.log('positionSliderToShowItem called with itemId:', itemId)
+  console.log('items.value:', items.value)
+  
+  // Wait a bit to ensure the DOM is updated
+  await new Promise(resolve => setTimeout(resolve, 300))
+  
+  const itemIndex = items.value.findIndex(item => item.id == itemId)
+  console.log('itemIndex found:', itemIndex)
+  
+  if (itemIndex !== -1) {
+    // Calculate the position to center the item in the view
+    const targetOffset = Math.max(0, (itemIndex - Math.floor(itemsPerView / 2)) * itemWidth)
+    const maxOffset = Math.max(0, (items.value.length - itemsPerView) * itemWidth)
+    const newOffset = Math.min(targetOffset, maxOffset)
+    console.log('Setting itemSliderOffset to:', newOffset)
+    itemSliderOffset.value = newOffset
+  }
+}
+
+// Function to position slider to show a specific shelve
+const positionSliderToShowShelve = async (shelveId) => {
+  // Wait a bit to ensure the DOM is updated
+  await new Promise(resolve => setTimeout(resolve, 300))
+  
+  const shelveIndex = shelves.value.findIndex(shelve => shelve.id == shelveId)
+  if (shelveIndex !== -1) {
+    // Calculate the position to center the shelve in the view
+    const targetOffset = Math.max(0, (shelveIndex - Math.floor(itemsPerView / 2)) * itemWidth)
+    const maxOffset = Math.max(0, (shelves.value.length - itemsPerView) * itemWidth)
+    shelveSliderOffset.value = Math.min(targetOffset, maxOffset)
+  }
+}
+
+// Function to position slider to show a specific floor
+const positionSliderToShowFloor = async (floorId) => {
+  // Wait a bit to ensure the DOM is updated
+  await new Promise(resolve => setTimeout(resolve, 300))
+  
+  const floorIndex = floors.value.findIndex(floor => floor.id == floorId)
+  if (floorIndex !== -1) {
+    // Calculate the position to center the floor in the view
+    const targetOffset = Math.max(0, (floorIndex - Math.floor(itemsPerView / 2)) * itemWidth)
+    const maxOffset = Math.max(0, (floors.value.length - itemsPerView) * itemWidth)
+    floorSliderOffset.value = Math.min(targetOffset, maxOffset)
+  }
+}
+
 // Initialize
 onMounted(() => {
   fetchShelves()
@@ -602,6 +664,25 @@ watch(() => route.params, (newParams) => {
     fetchItems(parseInt(newParams.floorId))
   }
 }, { immediate: true })
+
+// Watch for route changes to position sliders automatically
+watch(() => route.params.shelveId, async (newShelveId) => {
+  console.log('Shelve ID changed to:', newShelveId)
+  console.log('Shelves length:', shelves.value.length)
+  if (newShelveId && shelves.value.length > 0) {
+    await new Promise(resolve => setTimeout(resolve, 100))
+    positionSliderToShowShelve(parseInt(newShelveId))
+  }
+})
+
+watch(() => route.params.floorId, async (newFloorId) => {
+  console.log('Floor ID changed to:', newFloorId)
+  console.log('Floors length:', floors.value.length)
+  if (newFloorId && floors.value.length > 0) {
+    await new Promise(resolve => setTimeout(resolve, 100))
+    positionSliderToShowFloor(parseInt(newFloorId))
+  }
+})
 
 // Watch for floor changes to reset item selection
 watch(() => route.params.floorId, (newFloorId, oldFloorId) => {
