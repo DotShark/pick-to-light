@@ -134,14 +134,14 @@
 
               <!-- Slot Selection -->
               <div class="mt-4 p-3 bg-gray-50 rounded border border-gray-200">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Slot Selection (0-144):</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Slot Selection (0-10):</label>
                 <div class="flex items-center gap-2 mb-2">
                   <input
                     type="range"
                     :id="`slot-${item.id}`"
                     v-model="slotSelections[item.id]"
                     min="0"
-                    max="144"
+                    max="10"
                     class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
                   />
                   <span class="text-sm font-medium text-gray-700 min-w-[3rem] text-center">{{ slotSelections[item.id] || 0 }}</span>
@@ -162,7 +162,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchFromApi } from '@/utils/api'

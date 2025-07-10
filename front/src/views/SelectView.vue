@@ -39,7 +39,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
 import SelectionNavigator from '../components/SelectionNavigator.vue'
-import { API_URL, fetchFromApi } from '@/utils/api'
+import { fetchFromApi } from '@/utils/api'
 
 const router = useRouter()
 

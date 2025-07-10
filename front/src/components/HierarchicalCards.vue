@@ -188,23 +188,9 @@
 </template>
 
 <script setup>
+import { fetchFromApi } from '@/utils/api'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-
-// Utility API function
-async function apiRequest(url, options = {}) {
-  const response = await fetch(url, options)
-  const contentType = response.headers.get('content-type')
-  let data = null
-  if (contentType && contentType.includes('application/json')) {
-    data = await response.json()
-  }
-  if (!response.ok) {
-    const error = (data && data.message) || response.statusText || 'API error'
-    throw new Error(error)
-  }
-  return data
-}
 
 const route = useRoute()
 const router = useRouter()
@@ -259,7 +245,7 @@ const isDeleteButtonDisabled = computed(() => {
 // Fetch data functions
 async function fetchShelves() {
   try {
-    shelves.value = await apiRequest('http://localhost:4000/shelves')
+    shelves.value = await fetchFromApi('shelves')
   } catch (error) {
     console.error('Error fetching shelves:', error)
   }
@@ -268,7 +254,7 @@ async function fetchShelves() {
 async function fetchFloors(shelveId) {
   loadingFloors.value = true
   try {
-    const allFloors = await apiRequest('http://localhost:4000/floors')
+    const allFloors = await fetchFromApi('floors')
     floors.value = allFloors.filter(floor => floor.shelfId == parseInt(shelveId))
   } catch (error) {
     console.error('Error fetching floors:', error)
@@ -280,7 +266,7 @@ async function fetchFloors(shelveId) {
 async function fetchItems(floorId) {
   loadingItems.value = true
   try {
-    const allItems = await apiRequest('http://localhost:4000/items')
+    const allItems = await fetchFromApi('items')
     items.value = allItems.filter(item => item.floorId == parseInt(floorId))
     selectedItemId.value = ''
   } catch (error) {
@@ -379,7 +365,7 @@ async function confirmDelete() {
     const endpoint = deleteType.value === 'shelve' ? 'shelves' :
                    deleteType.value === 'floor' ? 'floors' : 'items'
 
-    await apiRequest(`http://localhost:4000/${endpoint}/${itemToDelete.value.id}`, {
+    await fetchFromApi(`${endpoint}/${itemToDelete.value.id}`, {
       method: 'DELETE'
     })
 
@@ -427,7 +413,7 @@ async function confirmEdit() {
     const endpoint = editType.value === 'shelve' ? 'shelves' :
                    editType.value === 'floor' ? 'floors' : 'items'
 
-    await apiRequest(`http://localhost:4000/${endpoint}/${itemToEdit.value.id}`, {
+    await fetchFromApi(`${endpoint}/${itemToEdit.value.id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -477,7 +463,7 @@ async function confirmCreate() {
     } else if (createType.value === 'item' && selectedFloor.value) {
       payload.floorId = selectedFloor.value.id
     }
-    const createdItem = await apiRequest(`http://localhost:4000/${endpoint}`, {
+    const createdItem = await fetchFromApi(`${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

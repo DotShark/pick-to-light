@@ -55,7 +55,7 @@ import UpdateShelve from '../components/UpdateShelve.vue'
 import UpdateFloor from '../components/UpdateFloor.vue'
 import UpdateItem from '../components/UpdateItem.vue'
 import ShelvesListWithEdit from '../components/ShelvesListWithEdit.vue'
-import { API_URL, fetchFromApi } from '@/utils/api'
+import { fetchFromApi } from '@/utils/api'
 
 // Determine if we are in update mode
 const route = useRoute()
