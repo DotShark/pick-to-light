@@ -131,6 +131,29 @@
               >
                 {{ updatingItem === item.id ? 'Stopping...' : 'Stop' }}
               </button>
+
+              <!-- Slot Selection -->
+              <div class="mt-4 p-3 bg-gray-50 rounded border border-gray-200">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Slot Selection (0-144):</label>
+                <div class="flex items-center gap-2 mb-2">
+                  <input
+                    type="range"
+                    :id="`slot-${item.id}`"
+                    v-model="slotSelections[item.id]"
+                    min="0"
+                    max="144"
+                    class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                  <span class="text-sm font-medium text-gray-700 min-w-[3rem] text-center">{{ slotSelections[item.id] || 0 }}</span>
+                </div>
+                <button
+                  @click="updateItemSlot(item)"
+                  class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm"
+                  :disabled="updatingItem === item.id"
+                >
+                  {{ updatingItem === item.id ? 'Updating...' : 'Update Slot' }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -157,6 +180,7 @@ const items = ref([])
 const loadingFloors = ref(false)
 const loadingItems = ref(false)
 const updatingItem = ref(null)
+const slotSelections = ref({})
 
 async function fetchShelves() {
   try {
@@ -171,8 +195,8 @@ async function fetchFloors(shelfId) {
   try {
     const allFloors = await fetchFromApi('floors')
     floors.value = allFloors.filter(floor =>
-      floor.shelfId == parseInt(shelfId) ||
-      floor.shelf_id == parseInt(shelfId)
+      floor.shelfId === parseInt(shelfId) ||
+      floor.shelf_id === parseInt(shelfId)
     )
   } catch (error) {
     console.error('Error fetching floors:', error)
@@ -186,9 +210,13 @@ async function fetchItems(floorId) {
   try {
     const allItems = await fetchFromApi('items')
     items.value = allItems.filter(item =>
-      item.floorId == parseInt(floorId) ||
-      item.floor_id == parseInt(floorId)
+      item.floorId === parseInt(floorId) ||
+      item.floor_id === parseInt(floorId)
     )
+
+    items.value.forEach(item => {
+      slotSelections.value[item.id] = item.slot || 0
+    })
   } catch (error) {
     console.error('Error fetching items:', error)
   } finally {
@@ -259,6 +287,32 @@ async function deactivateItem(item) {
     if (idx !== -1) items.value[idx].color = '#000000'
   } catch (error) {
     console.error('Error deactivating item:', error)
+  } finally {
+    updatingItem.value = null
+  }
+}
+
+async function updateItemSlot(item) {
+  updatingItem.value = item.id
+  try {
+    const selectedSlot = slotSelections.value[item.id] || 0
+    await fetchFromApi(`items/${item.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: item.name,
+        color: item.color,
+        floorId: item.floorId || item.floor_id,
+        slot: selectedSlot
+      })
+    })
+    // Update the item in the local state
+    const idx = items.value.findIndex(i => i.id === item.id)
+    if (idx !== -1) {
+      items.value[idx].slot = selectedSlot
+    }
+  } catch (error) {
+    console.error('Error updating item slot:', error)
   } finally {
     updatingItem.value = null
   }
