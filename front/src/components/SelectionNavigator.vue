@@ -148,7 +148,7 @@
                 </div>
                 <button
                   @click="updateItemSlot(item)"
-                  class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm"
+                  class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm cursor-pointer"
                   :disabled="updatingItem === item.id"
                 >
                   {{ updatingItem === item.id ? 'Updating...' : 'Update Slot' }}
@@ -162,7 +162,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchFromApi } from '@/utils/api'
