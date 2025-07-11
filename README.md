@@ -1,5 +1,7 @@
 # Pick-to-Light 💡
 
+**Live Demo:** The project is currently up and running at [https://ptl.dotshark.dev](https://ptl.dotshark.dev)
+
 > Because finding stuff in your warehouse shouldn't feel like a treasure hunt.
 
 A smart IoT solution that lets you click a button and instantly light up the exact shelf location of any product. No more wandering around with a clipboard like it's 1995.

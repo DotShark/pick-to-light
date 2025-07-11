@@ -22,7 +22,7 @@ services:
     build: ./front
     container_name: pick-to-light-front
     ports:
-      - "${FRONT_PORT}:4173"
+      - "${FRONT_PORT}:3000"
     environment:
       VITE_API_URL: ${VITE_API_URL}
     networks:
